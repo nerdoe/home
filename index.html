@@ -3,1609 +3,592 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Coomer Browser</title>
+<title>Vault</title>
+<link rel="icon" type="image/x-icon" href="/icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#08080d;--bg2:#0e0e16;--bg3:#141420;--bg4:#1c1c2c;--bg5:#22223a;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.12);
+  --text:#eeeef5;--text2:#8888aa;--text3:#44445a;
+  --c:#ff3c6e;--cg:rgba(255,60,110,0.14);
+  --l:#00d4ff;--lg:rgba(0,212,255,0.12);
+  --accent:#ff3c6e;--accentg:rgba(255,60,110,0.14);
+  --r:10px;--rl:14px;--sidebar:268px;--topbar:52px;
+  --mono:'JetBrains Mono',monospace;--font:'Syne',sans-serif;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;overflow:hidden;width:100vw;max-width:100%;}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bg5);border-radius:99px}
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* ANIMATIONS */
+@keyframes fadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pulse { from { opacity: .4; } to { opacity: 1; } }
 
-  :root {
-    --bg: #0a0a0f;
-    --bg2: #111118;
-    --bg3: #18181f;
-    --bg4: #202028;
-    --border: rgba(255,255,255,0.07);
-    --border2: rgba(255,255,255,0.13);
-    --text: #f0f0f5;
-    --text2: #9090a8;
-    --text3: #5a5a72;
-    --accent: #7c6aff;
-    --accent2: #9d8fff;
-    --accent-glow: rgba(124,106,255,0.18);
-    --radius: 10px;
-    --radius-lg: 16px;
-    --sidebar-w: 260px;
-  }
+/* APP */
+.app{display:grid;grid-template-rows:var(--topbar) 1fr;height:100vh}
 
-  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; overflow-x: hidden; }
+/* TOPBAR */
+.topbar{
+  display:flex;align-items:center;gap:9px;padding:0 14px;
+  background:var(--bg2);border-bottom:1px solid var(--border);z-index:300;position:relative;
+}
+.logo{font-size:17px;font-weight:800;letter-spacing:-1px;color:var(--text);display:flex;align-items:center;gap:7px;white-space:nowrap;flex-shrink:0}
+.logo-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;transition:background 0.3s;}
+.ham{display:none;width:38px;height:38px;align-items:center;justify-content:center;border-radius:7px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);cursor:pointer;font-size:18px;flex-shrink:0;transition:all .15s}
+.ham:hover{color:var(--text);background:var(--bg4)}
+.svc-pills{display:flex;gap:3px;flex-shrink:0}
+.spill{
+  display:flex;align-items:center;gap:5px;padding:5px 11px;border-radius:20px;
+  font-size:11px;font-weight:700;cursor:pointer;border:1px solid var(--border2);
+  background:var(--bg3);color:var(--text2);transition:all .15s;white-space:nowrap
+}
+.spill:hover{color:var(--text);background:var(--bg4)}
+.spill .sdot{width:6px;height:6px;border-radius:50%}
+.spill[data-s="coomer"] .sdot{background:var(--c)}
+.spill[data-s="leak"]   .sdot{background:var(--l)}
+.spill[data-s="both"]   .sdot{background:linear-gradient(135deg,var(--c),var(--l))}
+.spill.on[data-s="coomer"]{background:var(--cg);border-color:var(--c);color:var(--c)}
+.spill.on[data-s="leak"]  {background:var(--lg);border-color:var(--l);color:var(--l)}
+.spill.on[data-s="both"]  {background:var(--cg);border-color:var(--accent);color:var(--accent)}
+.search-w{flex:1;max-width:360px;position:relative}
+.search-w input{
+  width:100%;padding:8px 12px 8px 32px;background:var(--bg3);border:1px solid var(--border);
+  border-radius:8px;color:var(--text);font-family:var(--font);font-size:13px;outline:none;transition:border-color .2s
+}
+.search-w input:focus{border-color:var(--accent)}
+.search-w input::placeholder{color:var(--text3)}
+.search-ico{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none;font-size:13px}
+.tbr{display:flex;align-items:center;gap:6px;margin-left:auto}
+.ibtn{
+  width:36px;height:36px;display:flex;align-items:center;justify-content:center;
+  border-radius:8px;border:1px solid var(--border2);background:var(--bg3);
+  color:var(--text2);cursor:pointer;font-size:14px;transition:all .15s;flex-shrink:0
+}
+.ibtn:hover{background:var(--bg4);color:var(--text)}
+.ibtn.on{background:var(--accentg);border-color:var(--accent);color:var(--accent)}
 
-  /* ── SCROLLBAR ── */
-  ::-webkit-scrollbar { width: 5px; height: 5px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 99px; }
+/* BODY */
+.body{display:grid;grid-template-columns:var(--sidebar) 1fr;overflow:hidden;height:100%}
+.overlay{display:none;position:fixed;inset:0;top:var(--topbar);z-index:150;background:rgba(0,0,0,0.6);backdrop-filter:blur(3px);animation:fadeIn 0.2s ease;}
+.overlay.on{display:block}
 
-  /* ── LAYOUT ── */
-  .app { display: grid; grid-template-rows: 56px 1fr; height: 100vh; }
+/* SIDEBAR */
+.sidebar{background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;transition:transform .3s cubic-bezier(0.16, 1, 0.3, 1);}
+.sb-head{padding:14px 14px 10px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-shrink:0}
+.sb-lbl{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3)}
+.sb-status{font-size:10px;color:var(--text3);font-family:var(--mono)}
+.sb-scroll{flex:1;overflow-y:auto;padding:8px}
 
-  /* ── TOPBAR ── */
-  .topbar {
-    display: flex; align-items: center; gap: 10px;
-    padding: 0 16px;
-    background: var(--bg2);
-    border-bottom: 1px solid var(--border);
-    position: sticky; top: 0; z-index: 200;
-  }
-  .logo { font-size: 15px; font-weight: 600; color: var(--accent2); letter-spacing: -0.3px; white-space: nowrap; }
-  .logo span { color: var(--text3); font-weight: 400; }
+.up-btn{cursor:pointer;margin-left:8px;font-size:10px;color:var(--text2);background:var(--bg4);padding:3px 6px;border-radius:4px;border:1px solid var(--border2);transition:all .15s;}
+.up-btn:hover{color:var(--text);border-color:var(--text2);}
 
-  .hamburger {
-    display: none; width: 36px; height: 36px; align-items: center; justify-content: center;
-    border-radius: 8px; border: 1px solid var(--border2); background: var(--bg3);
-    color: var(--text2); cursor: pointer; font-size: 18px; flex-shrink: 0;
-    transition: background 0.15s, color 0.15s;
-  }
-  .hamburger:hover { background: var(--bg4); color: var(--text); }
+/* Creator card */
+.cc{display:flex;align-items:center;gap:10px;padding:8px;border-radius:10px;cursor:pointer;transition:background .15s;margin-bottom:2px;position:relative}
+.cc:hover{background:var(--bg3)}
+.cc.on{background:var(--bg4)}
+.cc.on::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:60%;border-radius:0 3px 3px 0;background:var(--accent)}
+.cav{width:38px;height:38px;border-radius:10px;flex-shrink:0;background:var(--bg4);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--text2)}
+.cav img{width:100%;height:100%;object-fit:cover}
+.ci{flex:1;min-width:0}
+.cn{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cm{font-size:10px;color:var(--text3);margin-top:3px}
+.stag{font-size:9px;font-weight:700;padding:2px 5px;border-radius:4px;text-transform:uppercase}
+.stag.coomer{background:var(--cg);color:var(--c)}
+.stag.leak{background:var(--lg);color:var(--l)}
 
-  /* Home button */
-  .home-btn {
-    display: flex; align-items: center; gap: 6px;
-    padding: 6px 11px; border-radius: 8px; border: 1px solid var(--border2);
-    background: var(--bg3); color: var(--text2); cursor: pointer; font-size: 12px; font-weight: 500;
-    transition: all 0.15s; white-space: nowrap; flex-shrink: 0;
-  }
-  .home-btn:hover { background: var(--bg4); color: var(--text); }
-  .home-btn.active { background: var(--accent-glow); border-color: var(--accent); color: var(--accent2); }
+/* CONTENT */
+.content{display:flex;flex-direction:column;overflow:hidden}
+.cscroll{flex:1;overflow-y:auto}
 
-  .search-wrap { flex: 1; max-width: 400px; position: relative; }
-  .search-wrap input {
-    width: 100%; padding: 8px 12px 8px 36px;
-    background: var(--bg3); border: 1px solid var(--border);
-    border-radius: 8px; color: var(--text); font-family: inherit; font-size: 13px;
-    outline: none; transition: border-color 0.2s;
-  }
-  .search-wrap input:focus { border-color: var(--accent); }
-  .search-wrap input::placeholder { color: var(--text3); }
-  .search-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--text3); font-size: 14px; pointer-events: none; }
+/* HOME TABS */
+.htabs-bar{display:flex;align-items:center;padding:0 14px;border-bottom:1px solid var(--border);background:var(--bg2);position:sticky;top:0;z-index:10;flex-shrink:0}
+.htab{
+  padding:14px;font-size:13px;font-weight:700;color:var(--text3);cursor:pointer;
+  border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:6px
+}
+.htab:hover{color:var(--text2)}
+.htab.on{color:var(--text);border-bottom-color:var(--accent)}
+.htab-ct{font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;background:var(--bg4);color:var(--text3)}
+.htab.on .htab-ct{background:var(--accentg);color:var(--accent)}
+.hsec{display:none;padding:14px}
+.hsec.on{display:block; animation:fadeIn 0.3s ease;}
 
-  .service-tabs { display: flex; gap: 4px; margin-left: auto; }
-  .service-tab {
-    padding: 5px 11px; border-radius: 6px; font-size: 12px; font-weight: 500;
-    cursor: pointer; border: 1px solid transparent; color: var(--text2);
-    transition: all 0.15s; white-space: nowrap;
-  }
-  .service-tab:hover { background: var(--bg3); color: var(--text); }
-  .service-tab.active { background: var(--accent-glow); border-color: var(--accent); color: var(--accent2); }
+/* MEDIA GRID */
+.mgrid{display:grid;gap:12px}
+.mgrid.g2{grid-template-columns:repeat(2,1fr)}
+.mgrid.g3{grid-template-columns:repeat(3,1fr)}
+.mgrid.g4{grid-template-columns:repeat(4,1fr)}
+.mgrid.g5{grid-template-columns:repeat(5,1fr)}
 
-  /* ── MAIN ── */
-  .main { display: grid; grid-template-columns: var(--sidebar-w) 1fr; overflow: hidden; position: relative; }
+/* MEDIA CARD */
+.mcard{border-radius:var(--rl);overflow:hidden;cursor:pointer;background:var(--bg3);position:relative;transition:transform .2s,box-shadow .2s;border:1px solid var(--border);opacity:0;animation:fadeUp 0.4s ease forwards;}
+.mcard:hover{transform:translateY(-4px);box-shadow:0 14px 28px rgba(0,0,0,0.5);border-color:var(--border2);z-index:2;}
+.mthumb{position:relative;aspect-ratio:3/4;overflow:hidden;background:var(--bg4)}
+.mthumb img,.mthumb video{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s}
+.mcard:hover .mthumb img,.mcard:hover .mthumb video{transform:scale(1.06)}
+.movlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.85) 0%,transparent 60%);opacity:0;transition:opacity .2s;display:flex;flex-direction:column;justify-content:flex-end;padding:12px}
+.mcard:hover .movlay{opacity:1}
+.movlay-c{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#fff}
+.movlay-c img{width:20px;height:20px;border-radius:50%;object-fit:cover}
+.vbadge{position:absolute;top:8px;right:8px;background:rgba(255,60,110,.9);color:#fff;font-size:10px;font-weight:700;padding:3px 7px;border-radius:5px;backdrop-filter:blur(4px)}
 
-  /* ── SIDEBAR OVERLAY (mobile) ── */
-  .sidebar-overlay {
-    display: none; position: fixed; inset: 0; z-index: 150; background: rgba(0,0,0,0.55); backdrop-filter: blur(2px);
-  }
-  .sidebar-overlay.open { display: block; }
+/* LOAD MORE */
+.lmore{display:flex;align-items:center;justify-content:center;padding:14px;margin:10px 0 30px;border-radius:12px;background:var(--bg3);border:1px solid var(--border2);color:var(--text2);font-family:var(--font);font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;gap:8px;width:100%}
+.lmore:hover{background:var(--bg4);color:var(--text)}
+.lmore:disabled{opacity:.4;cursor:default}
 
-  /* ── SIDEBAR ── */
-  .sidebar {
-    background: var(--bg2); border-right: 1px solid var(--border);
-    overflow-y: auto; display: flex; flex-direction: column;
-    transition: transform 0.25s ease;
-  }
-  .sidebar-section { padding: 14px 16px 8px; }
-  .sidebar-label { font-size: 10px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: var(--text3); margin-bottom: 10px; }
+/* SKELETON */
+.skel{border-radius:var(--rl);overflow:hidden;background:var(--bg3);border:1px solid var(--border)}
+.skel-t{aspect-ratio:3/4;background:var(--bg4);animation:pulse 1.4s ease-in-out infinite alternate}
 
-  .creator-card {
-    display: flex; align-items: center; gap: 10px;
-    padding: 8px 10px; border-radius: 8px; cursor: pointer;
-    transition: background 0.15s; margin-bottom: 2px;
-  }
-  .creator-card:hover { background: var(--bg3); }
-  .creator-card.active { background: var(--accent-glow); }
-  .creator-avatar {
-    width: 34px; height: 34px; border-radius: 8px; flex-shrink: 0;
-    background: var(--bg4); display: flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: 600; color: var(--accent2);
-    overflow: hidden;
-  }
-  .creator-avatar img { width: 100%; height: 100%; object-fit: cover; }
-  .creator-info { flex: 1; min-width: 0; }
-  .creator-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .creator-meta { font-size: 11px; color: var(--text3); display: flex; align-items: center; gap: 5px; margin-top: 1px; }
-  .service-badge {
-    font-size: 10px; font-weight: 600; padding: 1px 5px; border-radius: 4px;
-    background: var(--bg4); color: var(--text2); text-transform: uppercase; display: inline-block;
-  }
-  .service-badge.onlyfans { background: rgba(0,174,239,0.12); color: #00aeef; }
-  .service-badge.fansly { background: rgba(30,196,141,0.12); color: #1ec48d; }
+/* PROFILE */
+.p-banner{width:100%;height:140px;background:var(--bg3);background-size:cover;background-position:center;position:relative}
+.p-banner::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,var(--bg2) 100%)}
+.p-hero{background:var(--bg2);padding:0 20px 20px;display:flex;align-items:flex-start;gap:16px;border-bottom:1px solid var(--border)}
+.p-av{width:86px;height:86px;border-radius:16px;flex-shrink:0;background:var(--bg4);overflow:hidden;margin-top:-30px;position:relative;z-index:1;border:4px solid var(--bg2);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:var(--text2);box-shadow:0 8px 24px rgba(0,0,0,0.3);}
+.p-av img{width:100%;height:100%;object-fit:cover}
+.p-det{flex:1;min-width:0;padding-top:6px}
+.p-name{font-size:20px;font-weight:800;letter-spacing:-.5px;margin-bottom:4px}
+.p-stats{display:flex;gap:14px;flex-wrap:wrap;margin-top:6px}
+.pst{font-size:12px;color:var(--text3)}
+.pst strong{color:var(--text2);font-weight:700}
+.p-acts{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
 
-  /* ── CONTENT AREA ── */
-  .content { overflow-y: auto; display: flex; flex-direction: column; position: relative; }
+/* BUTTONS */
+.btn-p{padding:8px 16px;background:var(--accent);border:none;border-radius:10px;color:#fff;font-family:var(--font);font-size:12px;font-weight:700;cursor:pointer;transition:opacity .15s;text-decoration:none;display:inline-block}
+.btn-p:hover{opacity:.85}
+.btn-g{padding:8px 14px;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;color:var(--text2);font-family:var(--font);font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;white-space:nowrap}
+.btn-g:hover{background:var(--bg4);color:var(--text)}
 
-  /* ── HOME PAGE ── */
-  .home-page { flex: 1; overflow-y: auto; }
+/* TOOLBAR */
+.tbar{display:flex;align-items:center;gap:8px;padding:10px 16px;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10;flex-wrap:wrap}
+.tbar-title{font-size:13px;color:var(--text2);font-weight:600;flex:1;min-width:60px}
+.gtog{display:flex;gap:3px;background:var(--bg3);border-radius:8px;padding:4px}
+.gb{width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;border:none;background:none;color:var(--text3);cursor:pointer;font-size:14px;transition:all .15s}
+.gb.on{background:var(--bg5);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,0.2);}
+.fsel{padding:6px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text2);font-family:var(--font);font-size:12px;font-weight:600;outline:none;cursor:pointer;transition:border-color .15s;}
+.fsel:hover{border-color:var(--text3);}
 
-  /* Section tabs (Popular / Latest) */
-  .home-tabs {
-    display: flex; align-items: center; gap: 0;
-    padding: 0 16px;
-    background: var(--bg2); border-bottom: 1px solid var(--border);
-    position: sticky; top: 0; z-index: 10;
-  }
-  .home-tab {
-    padding: 14px 18px; font-size: 13px; font-weight: 500; color: var(--text3);
-    cursor: pointer; border-bottom: 2px solid transparent; transition: color 0.15s, border-color 0.15s;
-    white-space: nowrap;
-  }
-  .home-tab:hover { color: var(--text2); }
-  .home-tab.active { color: var(--accent2); border-bottom-color: var(--accent); }
-  .home-tab-count {
-    display: inline-block; margin-left: 6px; font-size: 10px; font-weight: 600;
-    padding: 2px 6px; border-radius: 10px; background: var(--bg4); color: var(--text3);
-  }
-  .home-tab.active .home-tab-count { background: var(--accent-glow); color: var(--accent2); }
+/* SEARCH RESULTS */
+.sres{padding:16px}
+.sres-title{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:12px}
+.spc{display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;background:var(--bg3);border:1px solid var(--border2);cursor:pointer;transition:all .2s;margin-bottom:8px;animation:fadeUp 0.3s ease forwards;}
+.spc:hover{background:var(--bg4);transform:translateX(5px);border-color:var(--text3);}
+.spc-av{width:48px;height:48px;border-radius:12px;object-fit:cover;background:var(--bg5);flex-shrink:0}
+.spc-info{flex:1;min-width:0}
+.spc-n{font-size:14px;font-weight:700}
+.spc-s{font-size:12px;color:var(--text3);margin-top:3px}
 
-  .home-section { display: none; padding: 16px; }
-  .home-section.visible { display: block; }
+/* EMPTY */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:60px 20px;text-align:center;animation:fadeIn 0.3s ease;}
+.empty .big{font-size:40px;opacity:.2}
+.empty p{font-size:13px;color:var(--text3);line-height:1.6}
 
-  .home-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-  .home-section-title { font-size: 13px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; }
-  .home-section-title .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); display: inline-block; }
-  .home-section-title .dot.green { background: #1ec48d; }
-  .home-section-count { font-size: 11px; color: var(--text3); }
+/* SPINNER */
+.spin{display:inline-block;width:18px;height:18px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:pulse .7s linear infinite}
 
-  /* Home post grid */
-  .home-grid { display: grid; gap: 12px; grid-template-columns: repeat(4, 1fr); margin-bottom: 16px; }
+/* LIGHTBOX */
+.lb{position:fixed;inset:0;z-index:1000;background:rgba(5,5,10,.97);display:none;flex-direction:column;animation:fadeIn 0.2s ease;}
+.lb.on{display:flex}
+.lb-top{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0}
+.lb-ci{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
+.lb-cav{width:34px;height:34px;border-radius:8px;object-fit:cover;background:var(--bg4);flex-shrink:0}
+.lb-cn{font-size:14px;font-weight:700}
+.lb-meta{font-size:11px;color:var(--text3);font-family:var(--mono)}
+.lb-acts{display:flex;gap:8px}
+.lb-close{width:36px;height:36px;border-radius:8px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;transition:background .15s}
+.lb-close:hover{background:var(--bg4);color:var(--accent);}
 
-  /* Fav count badge on home cards */
-  .fav-badge {
-    position: absolute; bottom: 8px; right: 8px; font-size: 10px; font-weight: 600;
-    padding: 3px 7px; border-radius: 5px; background: rgba(0,0,0,0.65);
-    backdrop-filter: blur(6px); color: #ff7eb3; display: flex; align-items: center; gap: 3px;
-  }
+.lb-body{flex:1;display:flex;overflow:hidden}
+.lb-media{flex:1;display:flex;align-items:center;justify-content:center;position:relative;background:#000;overflow:hidden}
+.lb-media img{max-width:100%;max-height:100%;object-fit:contain;user-select:none;animation:fadeIn 0.3s ease;}
+.lb-media video{max-width:100%;max-height:100%;outline:none;animation:fadeIn 0.3s ease;}
 
-  /* Load More button */
-  .load-more-btn {
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    width: 100%; padding: 12px; border-radius: 10px;
-    background: var(--bg3); border: 1px solid var(--border2); color: var(--text2);
-    font-family: inherit; font-size: 13px; font-weight: 500; cursor: pointer;
-    transition: background 0.15s, color 0.15s; margin-bottom: 24px;
-  }
-  .load-more-btn:hover { background: var(--bg4); color: var(--text); }
-  .load-more-btn:disabled { opacity: 0.4; pointer-events: none; }
+.lb-nav{position:absolute;top:50%;transform:translateY(-50%);width:48px;height:48px;border-radius:12px;background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.15);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:22px;backdrop-filter:blur(10px);transition:all .2s;z-index:5}
+.lb-nav:hover{background:rgba(255,255,255,.25);transform:translateY(-50%) scale(1.1);}
+.lb-nav:disabled{opacity:0;pointer-events:none}
+.lb-nav.p{left:16px}
+.lb-nav.n{right:16px}
 
-  /* ── PROFILE HERO ── */
-  .profile-banner {
-    width: 100%; height: 160px; background-color: var(--bg3);
-    background-size: cover; background-position: center; border-bottom: 1px solid var(--border);
-  }
-  .profile-hero {
-    background: var(--bg2); border-bottom: 1px solid var(--border);
-    padding: 0 24px 20px; display: flex; align-items: flex-start; gap: 18px;
-    position: relative;
-  }
-  .profile-avatar {
-    width: 84px; height: 84px; border-radius: 16px; flex-shrink: 0;
-    background: var(--bg4); display: flex; align-items: center; justify-content: center;
-    font-size: 28px; font-weight: 600; color: var(--accent2); overflow: hidden;
-    margin-top: -30px; border: 4px solid var(--bg2); box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  }
-  .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
-  .profile-details { flex: 1; padding-top: 12px; min-width: 0; }
-  .profile-name { font-size: 22px; font-weight: 600; letter-spacing: -0.4px; margin-bottom: 4px; }
-  .profile-badges { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
-  .profile-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
-  .btn-primary {
-    padding: 7px 16px; background: var(--accent); border: none; border-radius: 8px;
-    color: #fff; font-family: inherit; font-size: 12px; font-weight: 600;
-    cursor: pointer; transition: opacity 0.15s; text-decoration: none; display: inline-block;
-  }
-  .btn-primary:hover { opacity: 0.85; }
+.lb-reels{position:absolute;right:16px;bottom:75px;display:flex;flex-direction:column;gap:10px;z-index:5}
+.lb-rb{width:44px;height:44px;border-radius:50%;background:rgba(0,0,0,.65);border:1px solid rgba(255,255,255,.15);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;backdrop-filter:blur(10px);transition:all .2s}
+.lb-rb:hover{background:rgba(255,255,255,.25);transform:scale(1.1);}
+.lb-rb:disabled{opacity:.25;pointer-events:none}
 
-  /* ── TOOLBAR ── */
-  .posts-toolbar {
-    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-    padding: 10px 16px; background: var(--bg2);
-    border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10;
-  }
-  .toolbar-title { font-size: 13px; font-weight: 500; color: var(--text2); flex: 1; min-width: 60px; }
-  .view-toggle { display: flex; gap: 2px; background: var(--bg3); border-radius: 7px; padding: 3px; }
-  .view-btn {
-    width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
-    border-radius: 5px; cursor: pointer; color: var(--text3); font-size: 14px;
-    transition: all 0.15s; border: none; background: none;
-  }
-  .view-btn.active { background: var(--bg4); color: var(--text); }
-  .filter-select {
-    padding: 6px 10px; background: var(--bg3); border: 1px solid var(--border);
-    border-radius: 7px; color: var(--text2); font-family: inherit; font-size: 12px;
-    outline: none; cursor: pointer;
-  }
+.lb-stats{position:absolute;bottom:0;left:0;right:0;padding:32px 16px 14px;background:linear-gradient(to top,rgba(0,0,0,.9),transparent);display:flex;align-items:center;gap:12px;pointer-events:none}
+.lb-stat{font-size:12px;font-weight:600;color:rgba(255,255,255,.8);font-family:var(--mono);display:flex;align-items:center;gap:5px;background:rgba(0,0,0,0.5);padding:4px 8px;border-radius:6px;backdrop-filter:blur(4px);}
 
-  /* ── POST GRID ── */
-  .posts-container { padding: 16px; flex: 1; }
-  .posts-grid { display: grid; gap: 12px; }
-  .posts-grid.grid-3 { grid-template-columns: repeat(3, 1fr); }
-  .posts-grid.grid-4 { grid-template-columns: repeat(4, 1fr); }
-  .posts-grid.grid-list { grid-template-columns: 1fr; }
+.lb-panel{width:300px;flex-shrink:0;background:var(--bg2);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.lbp-head{padding:16px;border-bottom:1px solid var(--border)}
+.lbp-title{font-size:14px;font-weight:700;margin-bottom:4px;line-height:1.4;}
+.lbp-date{font-size:11px;color:var(--text3);font-family:var(--mono)}
+.lbp-body{flex:1;overflow-y:auto;padding:14px}
+.lbp-lbl{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:10px}
+.sug-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.sug-item{aspect-ratio:1;border-radius:8px;overflow:hidden;cursor:pointer;border:2px solid transparent;transition:all .15s;background:var(--bg4)}
+.sug-item:hover,.sug-item.on{border-color:var(--accent);transform:scale(1.05);}
+.sug-item img,.sug-item video{width:100%;height:100%;object-fit:cover}
 
-  /* ── POST CARD ── */
-  .post-card {
-    background: var(--bg2); border: 1px solid var(--border);
-    border-radius: var(--radius-lg); overflow: hidden; cursor: pointer;
-    transition: transform 0.2s, border-color 0.2s; position: relative;
-    display: flex; flex-direction: column;
-  }
-  .post-card:hover { transform: translateY(-2px); border-color: var(--border2); }
-  .post-card:hover .card-overlay { opacity: 1; }
-  .card-thumb { position: relative; aspect-ratio: 4/3; overflow: hidden; background: var(--bg3); }
-  .card-thumb img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.35s; display: block; }
-  .post-card:hover .card-thumb img { transform: scale(1.04); }
-  .card-thumb video { width: 100%; height: 100%; object-fit: cover; }
-  .card-overlay {
-    position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 60%);
-    opacity: 0; transition: opacity 0.2s; display: flex; align-items: flex-end; padding: 10px;
-  }
-  .card-overlay-actions { display: flex; gap: 6px; }
-  .overlay-btn {
-    width: 30px; height: 30px; border-radius: 7px; background: rgba(255,255,255,0.15); backdrop-filter: blur(8px);
-    border: 1px solid rgba(255,255,255,0.2); color: #fff; display: flex; align-items: center; justify-content: center;
-    font-size: 14px; cursor: pointer; transition: background 0.15s;
-  }
-  .overlay-btn:hover { background: rgba(255,255,255,0.25); }
-  .media-type-badge {
-    position: absolute; top: 8px; right: 8px; font-size: 10px; font-weight: 600; padding: 3px 7px; border-radius: 5px;
-    background: rgba(0,0,0,0.6); backdrop-filter: blur(6px); color: #fff; display: flex; align-items: center; gap: 4px;
-  }
-  .media-type-badge.video { background: rgba(124,106,255,0.7); }
-  .media-count-badge {
-    position: absolute; top: 8px; left: 8px; font-size: 10px; font-weight: 600; padding: 3px 7px; border-radius: 5px;
-    background: rgba(0,0,0,0.6); backdrop-filter: blur(6px); color: #fff;
-  }
-  .card-body { padding: 10px 12px; flex: 1; }
-  .card-title { font-size: 12px; font-weight: 500; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
-  .card-date { font-size: 11px; color: var(--text3); }
-  .card-creator { font-size: 11px; color: var(--accent2); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* VIDEO CONTROLS */
+.vcw{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center}
+.vcw video{max-width:100%;max-height:100%;object-fit:contain}
+.vcc{position:absolute;bottom:0;left:0;right:0;padding:30px 16px 14px;background:linear-gradient(transparent,rgba(0,0,0,.95))}
+.vbar{height:5px;border-radius:3px;background:rgba(255,255,255,.2);cursor:pointer;margin-bottom:12px;position:relative;transition:height 0.15s;}
+.vbar:hover{height:7px;}
+.vfill{height:100%;border-radius:3px;background:var(--accent);width:0%;transition:width .1s linear}
+.vtmb{position:absolute;top:50%;transform:translate(-50%,-50%);width:13px;height:13px;border-radius:50%;background:#fff;box-shadow:0 0 0 2px var(--accent);pointer-events:none}
+.vcr{display:flex;align-items:center;gap:12px}
+.vb{width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,.1);border:none;color:#fff;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:background .15s;backdrop-filter:blur(4px);}
+.vb:hover{background:rgba(255,255,255,.25)}
+.vt{font-family:var(--mono);font-size:12px;font-weight:500;color:rgba(255,255,255,.85)}
+.vvol{width:70px;accent-color:var(--accent)}
 
-  /* ── LIST VIEW ── */
-  .posts-grid.grid-list .post-card { display: flex; flex-direction: row; }
-  .posts-grid.grid-list .card-thumb { width: 130px; flex-shrink: 0; aspect-ratio: unset; height: 85px; }
-  .posts-grid.grid-list .card-body { flex: 1; display: flex; flex-direction: column; justify-content: center; }
-  .posts-grid.grid-list .card-title { white-space: normal; font-size: 13px; }
+/* ── MODAL UI ── */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 500;
+  background: rgba(0,0,0,0.7); backdrop-filter: blur(5px);
+  display: none; align-items: center; justify-content: center; padding: 16px;
+  animation: fadeIn 0.2s ease;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--bg2); border: 1px solid var(--border2); border-radius: 18px;
+  width: 100%; max-width: 480px; max-height: 90vh; display: flex; flex-direction: column;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.6); overflow: hidden;
+}
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 22px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+}
+.modal-title { font-size: 16px; font-weight: 800; }
+.modal-body { padding: 22px; overflow-y: auto; flex: 1; }
+.modal-section-label {
+  font-size: 11px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
+  color: var(--text3); margin-bottom: 10px;
+}
+.modal-desc { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.modal-desc code { color: var(--text); background: var(--bg4); padding: 2px 6px; border-radius: 5px; font-family: var(--mono); font-size: 12px; }
+.server-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.server-row {
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+  border-radius: 10px; background: var(--bg3); border: 1px solid var(--border);
+  transition: border-color 0.15s;
+}
+.server-row.active-server { border-color: var(--accent); background: var(--accentg); }
+.server-row-url { font-size: 13px; font-family: var(--mono); color: var(--text); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.server-row-status { font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 5px; white-space: nowrap; }
+.server-row-status.ok { background: rgba(0,212,255,0.15); color: var(--l); }
+.server-row-status.err { background: rgba(255,60,110,0.15); color: var(--accent); }
+.server-row-status.checking { color: var(--text3); }
+.server-use-btn {
+  font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 6px;
+  background: var(--bg4); color: var(--text3); border: 1px solid var(--border2);
+  cursor: pointer; transition: all 0.15s; white-space: nowrap;
+}
+.server-use-btn:hover { color: var(--text); border-color: var(--text2); }
+.server-use-btn.active-btn { background: var(--accentg); color: var(--accent); border-color: var(--accent); cursor: default; }
+.server-del-btn {
+  width: 28px; height: 28px; border-radius: 6px; background: none; border: none;
+  color: var(--text3); cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center;
+  transition: color 0.15s;
+}
+.server-del-btn:hover { color: var(--accent); background: var(--bg4); }
+.server-add-row { display: flex; gap: 10px; align-items: center; }
+.server-input {
+  flex: 1; padding: 10px 14px; background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: 10px; color: var(--text); font-family: var(--mono); font-size: 13px;
+  outline: none; transition: border-color 0.2s; min-width: 0;
+}
+.server-input:focus { border-color: var(--accent); }
+.toggle-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 0; font-size: 14px; font-weight: 600; color: var(--text2);
+}
+.toggle-row input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
 
-  /* ── LIGHTBOX (REELS) ── */
-  .lightbox {
-    position: fixed; inset: 0; z-index: 1000; background: #000;
-    display: none; flex-direction: column; animation: fadeIn 0.2s ease;
-  }
-  .lightbox.open { display: flex; }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-  .lb-header {
-    display: flex; align-items: center; gap: 10px; padding: 12px 16px;
-    border-bottom: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; background: var(--bg2);
-  }
-  .lb-title { font-size: 13px; font-weight: 500; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .lb-counter { font-size: 12px; color: var(--text2); font-family: 'DM Mono', monospace; background: var(--bg4); padding: 4px 8px; border-radius: 6px; white-space: nowrap; }
-  .lb-close {
-    width: 32px; height: 32px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.12);
-    background: rgba(255,255,255,0.06); color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: background 0.15s; flex-shrink: 0;
-  }
-  .lb-close:hover { background: rgba(255,255,255,0.12); }
-
-  .lb-body { flex: 1; display: flex; overflow: hidden; position: relative; }
-
-  .lb-creator-tag {
-    position: absolute; top: 16px; left: 16px; z-index: 10;
-    display: flex; align-items: center; gap: 10px; padding: 6px 14px 6px 6px;
-    background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 50px; overflow: hidden; transition: opacity 0.2s;
-  }
-  .lb-creator-tag::before {
-    content: ''; position: absolute; inset: 0; opacity: 0.3; z-index: -1;
-    background-size: cover; background-position: center; border-radius: inherit;
-  }
-  .lb-tag-avatar {
-    width: 36px; height: 36px; border-radius: 50%; object-fit: cover;
-    border: 2px solid var(--accent); background: var(--bg4); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px;
-  }
-  .lb-tag-info { display: flex; flex-direction: column; }
-  .lb-tag-name { font-size: 13px; font-weight: 600; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
-  .lb-tag-svc { font-size: 10px; font-weight: 500; color: var(--accent2); text-transform: uppercase; }
-
-  .reels-nav-hint {
-    position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
-    display: flex; flex-direction: column; gap: 10px; z-index: 10;
-  }
-  .reel-nav-btn {
-    width: 44px; height: 44px; border-radius: 50%; background: rgba(0,0,0,0.5);
-    border: 1px solid rgba(255,255,255,0.15); color: #fff; display: flex; align-items: center; justify-content: center;
-    cursor: pointer; font-size: 20px; backdrop-filter: blur(8px); transition: all 0.2s;
-  }
-  .reel-nav-btn:hover { background: rgba(255,255,255,0.2); transform: scale(1.1); }
-  .reel-nav-btn:disabled { opacity: 0.3; pointer-events: none; }
-
-  .lb-media-area { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
-  .lb-media-area img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 4px; transition: opacity 0.2s; user-select: none; }
-  .lb-media-area video { max-width: 100%; max-height: 100%; outline: none; }
-
-  .lb-nav {
-    position: absolute; top: 50%; transform: translateY(-50%);
-    width: 44px; height: 44px; border-radius: 10px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.12);
-    color: #fff; display: flex; align-items: center; justify-content: center;
-    cursor: pointer; font-size: 18px; transition: background 0.15s; backdrop-filter: blur(8px);
-  }
-  .lb-nav:hover { background: rgba(255,255,255,0.2); }
-  .lb-nav.prev { left: 16px; top: calc(50% + 40px); }
-  .lb-nav.next { right: 76px; }
-  .lb-nav:disabled { opacity: 0; pointer-events: none; }
-
-  .lb-sidebar { width: 300px; flex-shrink: 0; border-left: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; overflow: hidden; background: var(--bg2); }
-  .lb-info { padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.06); }
-  .lb-info-title { font-size: 15px; font-weight: 500; margin-bottom: 12px; line-height: 1.4; }
-  .lb-info-row { display: flex; justify-content: space-between; padding: 5px 0; font-size: 12px; }
-  .lb-info-row span:first-child { color: var(--text3); }
-  .lb-info-content { font-size: 13px; color: var(--text2); line-height: 1.5; margin-top: 10px; white-space: pre-wrap; max-height: 150px; overflow-y: auto; padding-right: 5px; }
-  .lb-info-content::-webkit-scrollbar { width: 3px; }
-
-  .lb-thumbnails { flex: 1; overflow-y: auto; padding: 12px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; align-content: start; }
-  .lb-thumb { aspect-ratio: 1; border-radius: 8px; overflow: hidden; cursor: pointer; position: relative; border: 2px solid transparent; transition: border-color 0.15s; background: var(--bg3); }
-  .lb-thumb.active { border-color: var(--accent); }
-  .lb-thumb img, .lb-thumb video { width: 100%; height: 100%; object-fit: cover; }
-
-  /* ── VIDEO PLAYER ── */
-  .video-wrap { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
-  .video-wrap video { max-width: 100%; max-height: 100%; object-fit: contain; display: block; }
-  .custom-controls { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.85)); padding: 30px 16px 16px; display: flex; flex-direction: column; gap: 8px; }
-  .progress-wrap { position: relative; height: 5px; cursor: pointer; border-radius: 3px; background: rgba(255,255,255,0.2); }
-  .progress-fill { height: 100%; border-radius: 3px; background: var(--accent); transition: width 0.1s linear; width: 0%; }
-  .progress-thumb { position: absolute; top: 50%; transform: translate(-50%, -50%); width: 14px; height: 14px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 2px var(--accent); pointer-events: none; }
-  .controls-row { display: flex; align-items: center; gap: 10px; }
-  .ctrl-btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border: none; background: rgba(255,255,255,0.1); color: #fff; cursor: pointer; font-size: 16px; border-radius: 8px; transition: background 0.15s; }
-  .ctrl-btn:hover { background: rgba(255,255,255,0.2); }
-  .time-display { font-family: 'DM Mono', monospace; font-size: 12px; color: rgba(255,255,255,0.8); }
-  .volume-wrap { display: flex; align-items: center; gap: 6px; }
-  .volume-slider { width: 70px; accent-color: var(--accent); }
-
-  /* ── LOADING & STATES ── */
-  .spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid var(--border2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .state-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 60px 24px; text-align: center; }
-  .state-empty .icon { font-size: 40px; opacity: 0.3; }
-  .state-empty p { font-size: 13px; color: var(--text3); }
-  .download-btn { display: flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 8px; background: var(--bg3); border: 1px solid var(--border2); color: var(--text2); font-size: 12px; font-family: inherit; cursor: pointer; text-decoration: none; transition: all 0.15s; white-space: nowrap; }
-  .download-btn:hover { background: var(--bg4); color: var(--text); }
-
-  /* ── RESPONSIVE ── */
-  @media (max-width: 900px) {
-    .main { grid-template-columns: 1fr; }
-    .sidebar {
-      position: fixed; top: 56px; left: 0; bottom: 0; z-index: 160;
-      width: var(--sidebar-w); transform: translateX(-100%);
-    }
-    .sidebar.open { transform: translateX(0); box-shadow: 4px 0 24px rgba(0,0,0,0.4); }
-    .hamburger { display: flex; }
-    .posts-grid.grid-3, .posts-grid.grid-4 { grid-template-columns: repeat(2, 1fr); }
-    .home-grid { grid-template-columns: repeat(2, 1fr); }
-    .lb-sidebar { display: none; }
-    .service-tabs { display: none; }
-    .posts-toolbar { gap: 6px; }
-  }
-
-  @media (max-width: 560px) {
-    .posts-grid.grid-3, .posts-grid.grid-4 { grid-template-columns: repeat(2, 1fr); }
-    .home-grid { grid-template-columns: repeat(2, 1fr); }
-    .profile-banner { height: 100px; }
-    .profile-name { font-size: 17px; }
-    .profile-hero { padding: 0 14px 14px; gap: 12px; }
-    .posts-container { padding: 10px; }
-    .home-section { padding: 10px; }
-    .filter-select { font-size: 11px; padding: 5px 7px; }
-    .lb-header { padding: 10px 12px; gap: 8px; }
-    .lb-title { font-size: 12px; }
-    .download-btn { display: none; }
-    .reels-nav-hint { right: 8px; }
-    .lb-nav.next { right: 62px; }
-    .reel-nav-btn { width: 36px; height: 36px; font-size: 16px; }
-    .lb-creator-tag { padding: 4px 10px 4px 4px; }
-    .lb-tag-avatar { width: 28px; height: 28px; }
-    .lb-tag-name { font-size: 12px; }
-  }
-
-  @media (max-width: 400px) {
-    .home-grid { grid-template-columns: 1fr; }
-    .posts-grid.grid-3, .posts-grid.grid-4, .posts-grid.grid-list { grid-template-columns: 1fr; }
-    .search-wrap { max-width: unset; }
-  }
-
-  /* ── SERVER BUTTON ── */
-  .server-btn {
-    display: flex; align-items: center; gap: 5px;
-    padding: 6px 11px; border-radius: 8px; border: 1px solid var(--border2);
-    background: var(--bg3); color: var(--text2); cursor: pointer; font-size: 12px; font-weight: 500;
-    transition: all 0.15s; white-space: nowrap; flex-shrink: 0;
-  }
-  .server-btn:hover { background: var(--bg4); color: var(--text); }
-  .server-btn.configured { border-color: #1ec48d44; color: #1ec48d; }
-
-  /* ── SIDEBAR META ROW ── */
-  .sidebar-meta {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0 10px 8px; gap: 8px;
-  }
-  .upload-creators-btn {
-    font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 5px;
-    background: var(--bg4); color: var(--text3); cursor: pointer; border: 1px solid var(--border2);
-    transition: all 0.15s; white-space: nowrap;
-  }
-  .upload-creators-btn:hover { color: var(--accent2); border-color: var(--accent); }
-
-  /* ── MODAL ── */
-  .modal-overlay {
-    position: fixed; inset: 0; z-index: 500;
-    background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
-    display: none; align-items: center; justify-content: center; padding: 16px;
-  }
-  .modal-overlay.open { display: flex; }
-  .modal {
-    background: var(--bg2); border: 1px solid var(--border2); border-radius: 16px;
-    width: 100%; max-width: 480px; max-height: 90vh; display: flex; flex-direction: column;
-    box-shadow: 0 24px 60px rgba(0,0,0,0.5); overflow: hidden;
-  }
-  .modal-header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 16px 20px; border-bottom: 1px solid var(--border); flex-shrink: 0;
-  }
-  .modal-title { font-size: 15px; font-weight: 600; }
-  .modal-body { padding: 20px; overflow-y: auto; flex: 1; }
-  .modal-section-label {
-    font-size: 10px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase;
-    color: var(--text3); margin-bottom: 8px;
-  }
-  .modal-desc { font-size: 12px; color: var(--text3); line-height: 1.5; }
-  .modal-desc code { color: var(--text2); background: var(--bg4); padding: 1px 4px; border-radius: 4px; font-family: 'DM Mono', monospace; font-size: 11px; }
-
-  /* Server list */
-  .server-list { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
-  .server-row {
-    display: flex; align-items: center; gap: 8px; padding: 8px 10px;
-    border-radius: 8px; background: var(--bg3); border: 1px solid var(--border);
-    transition: border-color 0.15s;
-  }
-  .server-row.active-server { border-color: var(--accent); background: var(--accent-glow); }
-  .server-row-url { font-size: 12px; font-family: 'DM Mono', monospace; color: var(--text2); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .server-row-status { font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px; white-space: nowrap; }
-  .server-row-status.ok { background: rgba(30,196,141,0.15); color: #1ec48d; }
-  .server-row-status.err { background: rgba(255,80,80,0.15); color: #ff5050; }
-  .server-row-status.checking { color: var(--text3); }
-  .server-use-btn {
-    font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 5px;
-    background: var(--bg4); color: var(--text3); border: 1px solid var(--border2);
-    cursor: pointer; transition: all 0.15s; white-space: nowrap;
-  }
-  .server-use-btn:hover { color: var(--accent2); border-color: var(--accent); }
-  .server-use-btn.active-btn { background: var(--accent-glow); color: var(--accent2); border-color: var(--accent); cursor: default; }
-  .server-del-btn {
-    width: 24px; height: 24px; border-radius: 5px; background: none; border: none;
-    color: var(--text3); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center;
-    transition: color 0.15s;
-  }
-  .server-del-btn:hover { color: #ff5050; }
-
-  /* Add server row */
-  .server-add-row { display: flex; gap: 8px; align-items: center; }
-  .server-input {
-    flex: 1; padding: 8px 12px; background: var(--bg3); border: 1px solid var(--border2);
-    border-radius: 8px; color: var(--text); font-family: 'DM Mono', monospace; font-size: 12px;
-    outline: none; transition: border-color 0.2s; min-width: 0;
-  }
-  .server-input:focus { border-color: var(--accent); }
-
-  /* Toggle */
-  .toggle-row {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 8px 0; font-size: 13px; color: var(--text2);
-  }
-  .toggle-row input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
-
-  /* Secondary button */
-  .btn-secondary {
-    padding: 7px 14px; background: var(--bg3); border: 1px solid var(--border2); border-radius: 8px;
-    color: var(--text2); font-family: inherit; font-size: 12px; font-weight: 600;
-    cursor: pointer; transition: all 0.15s; white-space: nowrap; display: inline-block;
-  }
-  .btn-secondary:hover { background: var(--bg4); color: var(--text); }
+/* RESPONSIVE */
+@media(max-width:900px){
+  .body{grid-template-columns:1fr}
+  .sidebar{position:fixed;top:var(--topbar);left:0;bottom:0;z-index:160;width:var(--sidebar);transform:translateX(-100%)}
+  .sidebar.on{transform:translateX(0);box-shadow:6px 0 40px rgba(0,0,0,.7)}
+  .ham{display:flex}
+  .svc-pills{display:none}
+  .mgrid.g4{grid-template-columns:repeat(3,1fr)}
+  .mgrid.g5{grid-template-columns:repeat(3,1fr)}
+  .lb-panel{display:none}
+}
+@media(max-width:600px){
+  .mgrid.g3,.mgrid.g4,.mgrid.g5{grid-template-columns:repeat(2,1fr)}
+  .p-banner{height:100px}
+  .p-name{font-size:18px}
+  .p-hero{padding:0 14px 16px;gap:12px}
+  .tbar{padding:8px 12px}
+  .hsec{padding:10px}
+  .lb-reels{right:8px;bottom:65px}
+  .lb-nav.n{right:55px}
+  .lb-nav.p{left:8px}
+  .search-w{position:absolute;top:var(--topbar);left:0;right:0;max-width:100%;z-index:200;background:var(--bg2);padding:10px;display:none;border-bottom:1px solid var(--border);}
+  .search-w.mobile-open{display:block;}
+  .search-w input {font-size:16px;} /* Prevents iOS zoom */
+}
+@media(max-width:380px){
+  .mgrid.g3,.mgrid.g4,.mgrid.g5{grid-template-columns:1fr}
+  .p-stats{gap:8px;}
+}
 </style>
 </head>
 <body>
-
 <div class="app">
-  <div class="topbar">
-    <button class="hamburger" id="hamburgerBtn" aria-label="Open creators">☰</button>
-    <div class="logo">coomer<span>.browser</span></div>
-    <button class="home-btn active" id="homeBtn" title="Home">⌂ Home</button>
-    <button class="server-btn" id="serverBtn" title="Server settings">⚙ Server</button>
-    <div class="search-wrap">
-      <span class="search-icon">⌕</span>
-      <input type="text" id="searchInput" placeholder="Search creators…" autocomplete="off">
+
+<div class="topbar">
+  <button class="ham" id="hamBtn">☰</button>
+  <div class="logo"><div class="logo-dot"></div>vault</div>
+  <div class="svc-pills" id="svcPills">
+    <div class="spill on" data-s="coomer"><span class="sdot"></span>Coomer</div>
+    <div class="spill" data-s="leak"><span class="sdot"></span>LeakGallery</div>
+    <div class="spill" data-s="both"><span class="sdot"></span>Both</div>
+  </div>
+  <div class="search-w" id="searchWrap">
+    <span class="search-ico">⌕</span>
+    <input type="text" id="searchInput" placeholder="Search creators…" autocomplete="off">
+  </div>
+  <div class="tbr">
+    <button class="ibtn" id="mobileSearchBtn" title="Search" style="display:none;">⌕</button>
+    <button class="ibtn" id="serverBtn" title="Server settings">⚙</button>
+    <button class="ibtn on" id="homeBtn" title="Home">⌂</button>
+    <button class="ibtn" id="gridBtn" title="Cycle grid size">⊞</button>
+  </div>
+</div>
+
+<div class="body">
+  <div class="overlay" id="overlay"></div>
+  <div class="sidebar" id="sidebar">
+    <div class="sb-head">
+      <div>
+        <span class="sb-lbl">Creators</span>
+        <label class="up-btn" title="Upload creators.txt / json">
+          ↑ <input type="file" id="sbCreatorsFile" accept=".txt,.json,.css" style="display:none">
+        </label>
+      </div>
+      <span class="sb-status" id="sbStatus">—</span>
     </div>
-    <div class="service-tabs">
-      <div class="service-tab active" data-service="">All</div>
-      <div class="service-tab" data-service="onlyfans">OnlyFans</div>
-      <div class="service-tab" data-service="fansly">Fansly</div>
+    <div class="sb-scroll" id="creatorList">
+      <div class="empty"><div class="big">◈</div><p>Loading creators...</p></div>
     </div>
   </div>
+  <div class="content">
+    <div class="cscroll" id="cscroll"></div>
+  </div>
+</div>
+</div>
 
-  <div class="main">
-    <!-- Mobile overlay -->
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-    <div class="sidebar" id="sidebarContainer">
-      <div class="sidebar-section">
-        <div class="sidebar-label">Creators</div>
-        <div class="sidebar-meta">
-          <span id="sidebarStatus" style="font-size:11px;color:var(--text3);">Loading…</span>
-          <label class="upload-creators-btn" title="Upload creators.txt / creators.json">
-            ↑ Upload
-            <input type="file" id="creatorsFileInput" accept=".txt,.json,.css" style="display:none">
-          </label>
-        </div>
-        <div id="creatorList"></div>
+<div class="lb" id="lb">
+  <div class="lb-top">
+    <div class="lb-ci">
+      <img id="lbAv" class="lb-cav" src="" alt="">
+      <div>
+        <div class="lb-cn" id="lbCn">—</div>
+        <div class="lb-meta" id="lbMeta">—</div>
       </div>
     </div>
-
-    <div class="content" id="mainContent">
-      <!-- Home page rendered by JS -->
+    <div class="lb-acts">
+      <a class="btn-g" id="lbDl" href="#" download target="_blank" style="font-size:12px;padding:6px 12px">↓ Save</a>
+      <div class="lb-close" id="lbClose">✕</div>
+    </div>
+  </div>
+  <div class="lb-body">
+    <div class="lb-media" id="lbMedia">
+      <button class="lb-nav p" id="lbP">‹</button>
+      <button class="lb-nav n" id="lbN">›</button>
+      <div class="lb-reels">
+        <button class="lb-rb" id="lbUp">∧</button>
+        <button class="lb-rb" id="lbDn">∨</button>
+      </div>
+      <div class="lb-stats" id="lbStats"></div>
+    </div>
+    <div class="lb-panel" id="lbPanel">
+      <div class="lbp-head">
+        <div class="lbp-title" id="lbPT">—</div>
+        <div class="lbp-date" id="lbPD"></div>
+      </div>
+      <div class="lbp-body">
+        <div class="lbp-lbl">Related</div>
+        <div class="sug-grid" id="lbSug"></div>
+      </div>
     </div>
   </div>
 </div>
 
-<div class="lightbox" id="lightbox">
-  <div class="lb-header">
-    <div class="lb-title" id="lbTitle">Post title</div>
-    <div class="lb-counter" id="lbCounter" title="Media Index">1 / 1</div>
-    <a class="download-btn" id="lbDownload" href="#" download target="_blank">↓ Download</a>
-    <button class="lb-close" id="lbClose">✕</button>
-  </div>
-  
-  <div class="lb-body" id="lbBody">
-    
-    <div class="reels-nav-hint">
-      <button class="reel-nav-btn" id="lbPrevPost" title="Previous Post (↑)">∧</button>
-      <button class="reel-nav-btn" id="lbNextPost" title="Next Post (↓)">∨</button>
-    </div>
-
-    <div class="lb-media-area" id="lbMediaArea">
-      
-      <div class="lb-creator-tag" id="lbCreatorTag">
-        <img id="lbTagAvatar" class="lb-tag-avatar" src="" alt="">
-        <div class="lb-tag-info">
-          <span class="lb-tag-name" id="lbTagName">Creator</span>
-          <span class="lb-tag-svc" id="lbTagSvc">Service</span>
-        </div>
-      </div>
-
-      <button class="lb-nav prev" id="lbPrev" title="Previous Media (←)">‹</button>
-      <button class="lb-nav next" id="lbNext" title="Next Media (→)">›</button>
-    </div>
-
-    <div class="lb-sidebar">
-      <div class="lb-info" id="lbInfo"></div>
-      <div class="lb-thumbnails" id="lbThumbnails"></div>
-    </div>
-  </div>
-</div>
-
-<!-- SERVER SETTINGS MODAL -->
 <div class="modal-overlay" id="serverModal">
   <div class="modal">
     <div class="modal-header">
       <div class="modal-title">⚙ Server Settings</div>
-      <button class="lb-close" id="serverModalClose">✕</button>
+      <div class="lb-close" id="serverModalClose">✕</div>
     </div>
     <div class="modal-body">
 
       <div class="modal-section-label">Built-in Servers</div>
       <div id="builtinServerList" class="server-list"></div>
 
-      <div class="modal-section-label" style="margin-top:16px">Custom Servers</div>
+      <div class="modal-section-label" style="margin-top:20px">Custom Servers</div>
       <div id="customServerList" class="server-list"></div>
       <div class="server-add-row">
-        <input type="text" id="customServerInput" class="server-input" placeholder="https://your-server.example.com">
-        <button class="btn-primary" id="addServerBtn">Add</button>
+        <input type="text" id="customServerInput" class="server-input" placeholder="https://your-server.com">
+        <button class="btn-p" id="addServerBtn">Add</button>
       </div>
 
-      <div class="modal-section-label" style="margin-top:16px">Creators File</div>
-      <div class="modal-desc">Upload a <code>creators.txt</code> or <code>creators.json</code> from your server to populate the sidebar.</div>
-      <div class="server-add-row" style="margin-top:8px">
-        <label class="btn-secondary" style="cursor:pointer">
+      <div class="modal-section-label" style="margin-top:20px">Creators File</div>
+      <div class="modal-desc">Upload a <code>creators.txt</code> or <code>creators.json</code> to populate the sidebar.</div>
+      <div class="server-add-row" style="margin-top:10px">
+        <label class="btn-g" style="cursor:pointer">
           📂 Choose File
           <input type="file" id="modalCreatorsFile" accept=".txt,.json,.css" style="display:none">
         </label>
-        <span id="uploadedFileName" style="font-size:12px;color:var(--text3);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">No file selected</span>
-        <button class="btn-secondary" id="clearCreatorsBtn">Clear</button>
+        <span id="uploadedFileName" style="font-size:13px;font-weight:600;color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">No file selected</span>
       </div>
 
-      <div class="modal-section-label" style="margin-top:16px">Options</div>
+      <div class="modal-section-label" style="margin-top:20px">Options</div>
       <label class="toggle-row">
         <span>Use CORS proxy as fallback</span>
         <input type="checkbox" id="useProxyToggle">
       </label>
-      <div class="modal-desc">Proxy: <code id="proxyDisplay">https://corsproxy.io/?url=</code></div>
-
-      <div style="margin-top:20px;display:flex;gap:8px;justify-content:flex-end">
-        <button class="btn-secondary" id="serverModalCancel">Cancel</button>
-        <button class="btn-primary" id="serverModalSave">Save &amp; Reload Creators</button>
-      </div>
+      <div class="modal-desc">Proxy: <code>https://corsproxy.io/?url=</code></div>
     </div>
   </div>
 </div>
 
 <script>
-// ─── SERVER CONFIG ───────────────────────────────────────
-const BUILTIN_SERVERS = ['https://coomer.st', 'https://kemono.su'];
+'use strict';
+// ── CONFIG & SERVER SETTINGS ─────────────────────────────
+const BUILTIN_SERVERS = ['https://coomer.st','https://kemono.su'];
 const PROXY = 'https://corsproxy.io/?url=';
+const CDN   = 'https://cdn.leakgallery.com/';
+const LGAPI = 'https://api.leakgallery.com';
 
-// Persisted server config (localStorage)
 function loadServerConfig() {
-  try {
-    const saved = localStorage.getItem('coomer_server_cfg');
-    if (saved) return JSON.parse(saved);
-  } catch(e) {}
+  try { const saved = localStorage.getItem('vault_server_cfg'); if (saved) return JSON.parse(saved); } catch(e) {}
   return { active: BUILTIN_SERVERS[0], custom: [], useProxy: true };
 }
-function saveServerConfig() {
-  try { localStorage.setItem('coomer_server_cfg', JSON.stringify(serverCfg)); } catch(e) {}
-}
+function saveServerConfig() { try { localStorage.setItem('vault_server_cfg', JSON.stringify(serverCfg)); } catch(e) {} }
 
 let serverCfg = loadServerConfig();
-// Ensure active is valid
 if (!serverCfg.active) serverCfg.active = BUILTIN_SERVERS[0];
-let ACTIVE_SERVER = serverCfg.active;
+let activeCServer = serverCfg.active;
+function allServers() { return [...BUILTIN_SERVERS, ...serverCfg.custom]; }
 
-function allServers() {
-  return [...BUILTIN_SERVERS, ...serverCfg.custom];
-}
-
-let state = {
-  service: '',
-  query: '',
-  creators: [],
+// ── STATE ────────────────────────────────────────────────
+let S = {
+  svc:'coomer', gs:4, view:'home',
+  profile:null, pMedias:[], pPage:1, pLoad:false, pDone:false,
+  htabs:{
+    cp:{posts:[],off:0,load:false,done:false},
+    cl:{posts:[],off:0,load:false,done:false},
+    ld:{items:[],page:1,load:false,done:false}
+  },
+  activeTab:'cp',
+  lb:{open:false,items:[],idx:0,svc:'coomer',creator:null,media:[],midx:0},
+  allCreators: [], 
   creatorsOffset: 0,
-  currentCreator: null,
-  posts: [],
-  postsOffset: 0,
-  isFetchingPosts: false,
-  viewMode: 'grid-3',
-  filterType: 'all',
-  sortOrder: 'latest',
-  showingHome: true,
-  lightbox: { open: false, media: [], index: 0, postData: null, postIndex: 0, postsArray: [], homeMode: false }
+  query: ''
 };
 
-// ─── URL ROUTING ────────────────────────────────────────
-function updateURL(service, user, postId = null) {
+// ── UTILS ────────────────────────────────────────────────
+const $=id=>document.getElementById(id);
+const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const fmt=n=>n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?(n/1e3).toFixed(1)+'K':String(n);
+function fmtT(s){const m=Math.floor(s/60);return`${m}:${String(Math.floor(s%60)).padStart(2,'0')}`}
+function isVid(p){return/\.(mp4|webm|mov|mkv|m4v|ogv)(\?.*)?$/i.test(p||'')}
+function cMediaUrl(p){if(!p)return'';if(p.startsWith('http'))return p;return activeCServer+p}
+function lUrl(p){if(!p)return'';if(p.startsWith('http'))return p;return CDN+p}
+function cIcon(svc,id){return`https://img.coomer.st/icons/${svc}/${id}`}
+function cBanner(svc,id){return`https://img.coomer.st/banners/${svc}/${id}`}
+function gcls(){return'mgrid g'+S.gs}
+function skel(n){return`<div class="${gcls()}">${Array.from({length:n},()=>'<div class="skel"><div class="skel-t"></div></div>').join('')}</div>`}
+
+function getCoomerMedia(post){
+  const a=[];
+  if(post.file&&post.file.path)a.push(post.file);
+  if(post.attachments)a.push(...post.attachments.filter(x=>x&&x.path));
+  return a;
+}
+
+// ── URL ROUTING ──────────────────────────────────────────
+function updateURL(svc, creator, post) {
   const url = new URL(window.location);
-  if (service && user) {
-    url.searchParams.set('service', service);
-    url.searchParams.set('user', user);
+  if (svc && creator) {
+    url.searchParams.set('service', svc);
+    url.searchParams.set('creator', creator);
   } else {
     url.searchParams.delete('service');
-    url.searchParams.delete('user');
+    url.searchParams.delete('creator');
   }
-  if (postId) url.searchParams.set('post', postId);
+  if (post) url.searchParams.set('post', post);
   else url.searchParams.delete('post');
   window.history.pushState({}, '', url);
 }
 
 window.addEventListener('popstate', async () => {
-  const params = new URLSearchParams(window.location.search);
-  const srv = params.get('service');
-  const usr = params.get('user');
-  const pid = params.get('post');
-
-  if (!srv || !usr) {
-    closeLightbox(true);
-    showHomePage();
-    document.querySelectorAll('.creator-card').forEach(c => c.classList.remove('active'));
-    state.currentCreator = null;
+  const p = new URLSearchParams(window.location.search);
+  const svc = p.get('service'), cid = p.get('creator'), pid = p.get('post');
+  
+  if (!svc || !cid) {
+    closeLB(true);
+    showHome(true);
     return;
   }
 
-  if (state.currentCreator?.id !== usr) {
-    const creator = { id: usr, service: srv, name: usr };
-    await loadCreatorPosts(creator, true, true);
+  let cObj = S.allCreators.find(c => c.id === cid && (svc === 'leak' ? c.svc === 'leak' : c.coomerSvc === svc));
+  if (!cObj) cObj = { id: cid, name: cid, svc: svc === 'leak' ? 'leak' : 'coomer', coomerSvc: svc };
+
+  if (!S.profile || S.profile.id !== cid) {
+    await loadProfile(cObj, true);
   }
 
   if (pid) {
-    const idx = state.posts.findIndex(p => p.id === pid);
-    if (idx !== -1) openLightbox(state.posts, idx, true);
+    const idx = S.pMedias.findIndex(m => m.id === pid || m.file_path?.includes(pid));
+    if (idx >= 0) {
+      if (cObj.svc === 'leak') openLBLeak(S.pMedias, idx, cObj, true);
+      else openLBCoomer(S.pMedias, idx, cObj, true);
+    }
   } else {
-    closeLightbox(true);
+    closeLB(true);
   }
 });
 
-// ─── INIT ───────────────────────────────────────────────
-async function init() {
-  await loadCreators(true);
-  
-  const params = new URLSearchParams(window.location.search);
-  const srv = params.get('service');
-  const usr = params.get('user');
-  const pid = params.get('post');
-
-  if (srv && usr) {
-    state.showingHome = false;
-    document.getElementById('homeBtn').classList.remove('active');
-    const creator = { id: usr, service: srv, name: usr };
-    await loadCreatorPosts(creator, true, true);
-    if (pid) {
-      const postIdx = state.posts.findIndex(p => p.id === pid);
-      if (postIdx !== -1) openLightbox(state.posts, postIdx, true);
-    }
-  } else {
-    showHomePage();
-  }
-
-  bindEvents();
+// ── FETCH ────────────────────────────────────────────────
+async function fetchJ(url, opts = {}){
+  try{const r=await fetch(url, opts);if(r.ok)return r.json()}catch(e){}
+  try{const r=await fetch(PROXY+encodeURIComponent(url), opts);if(r.ok)return r.json()}catch(e){}
+  throw new Error('Failed: '+url);
 }
 
-// ─── HOME PAGE ──────────────────────────────────────────
-// Home feed state per section
-const homeFeed = {
-  popular: { posts: [], offset: 0, loading: false, exhausted: false },
-  latest:  { posts: [], offset: 0, loading: false, exhausted: false }
-};
-let activeHomeTab = 'popular';
-
-async function showHomePage() {
-  state.showingHome = true;
-  state.currentCreator = null;
-  document.getElementById('homeBtn').classList.add('active');
-  document.querySelectorAll('.creator-card').forEach(c => c.classList.remove('active'));
-
-  // Reset feeds
-  homeFeed.popular = { posts: [], offset: 0, loading: false, exhausted: false };
-  homeFeed.latest  = { posts: [], offset: 0, loading: false, exhausted: false };
-  activeHomeTab = 'popular';
-
-  const mc = document.getElementById('mainContent');
-  mc.innerHTML = `
-    <div class="home-page" id="homePageEl">
-      <div class="home-tabs">
-        <div class="home-tab active" data-tab="popular">⭐ Popular <span class="home-tab-count" id="popularTabCount">—</span></div>
-        <div class="home-tab" data-tab="latest">🕒 Latest <span class="home-tab-count" id="latestTabCount">—</span></div>
-      </div>
-
-      <div class="home-section visible" id="homeSection-popular">
-        <div class="home-grid" id="popularGrid">${skeletonCards(8)}</div>
-        <button class="load-more-btn" id="popularLoadMore" disabled>Loading…</button>
-      </div>
-
-      <div class="home-section" id="homeSection-latest">
-        <div class="home-grid" id="latestGrid">${skeletonCards(8)}</div>
-        <button class="load-more-btn" id="latestLoadMore" disabled>Loading…</button>
-      </div>
-    </div>`;
-
-  // Tab switching
-  mc.querySelectorAll('.home-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      mc.querySelectorAll('.home-tab').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      activeHomeTab = tab.dataset.tab;
-      mc.querySelectorAll('.home-section').forEach(s => s.classList.remove('visible'));
-      document.getElementById(`homeSection-${activeHomeTab}`).classList.add('visible');
-      // Lazy-load the other tab on first switch
-      if (homeFeed[activeHomeTab].posts.length === 0 && !homeFeed[activeHomeTab].loading) {
-        loadHomeFeed(activeHomeTab);
-      }
-    });
-  });
-
-  // Load-more buttons
-  document.getElementById('popularLoadMore').addEventListener('click', () => loadHomeFeed('popular'));
-  document.getElementById('latestLoadMore').addEventListener('click', () => loadHomeFeed('latest'));
-
-  // Load popular immediately; latest loads lazily on tab switch
-  await loadHomeFeed('popular');
-}
-
-function skeletonCards(n) {
-  return Array.from({length: n}, () => `
-    <div class="post-card" style="pointer-events:none">
-      <div class="card-thumb" style="background:var(--bg3);animation:pulse 1.5s infinite alternate;"></div>
-      <div class="card-body">
-        <div style="height:10px;border-radius:4px;background:var(--bg4);width:80%;margin-bottom:6px;animation:pulse 1.5s infinite alternate;"></div>
-        <div style="height:8px;border-radius:4px;background:var(--bg4);width:50%;animation:pulse 1.5s infinite alternate;"></div>
-      </div>
-    </div>`).join('');
-}
-
-const pulseKF = document.createElement('style');
-pulseKF.textContent = `@keyframes pulse { from { opacity:0.5; } to { opacity:1; } }`;
-document.head.appendChild(pulseKF);
-
-async function loadHomeFeed(type) {
-  const feed = homeFeed[type];
-  if (feed.loading || feed.exhausted) return;
-  feed.loading = true;
-
-  const isPopular = type === 'popular';
-  const gridId = `${type}Grid`;
-  const btnId = `${type}LoadMore`;
-  const countId = `${type}TabCount`;
-
-  // Popular API doesn't paginate with offset; latest does
-  const path = isPopular
-    ? '/api/v1/posts/popular?period=recent'
-    : `/api/v1/posts?o=${feed.offset}`;
-
-  const btn = document.getElementById(btnId);
-  if (btn) { btn.disabled = true; btn.textContent = 'Loading…'; }
-
-  try {
-    const res = await smartFetch(path, { headers: { "Accept": "text/css" } });
-    const raw = await res.json();
-    const grid = document.getElementById(gridId);
-    if (!grid) { feed.loading = false; return; }
-
-    // Parse response shape:
-    //  popular -> { info:{}, props:{ count:500 }, posts:[...] }  (fav_count per post)
-    //  latest  -> { count:50000, true_count:..., posts:[...] }
-    //  fallback -> plain array (old API)
-    let posts = Array.isArray(raw) ? raw : (raw && raw.posts ? raw.posts : []);
-    const totalCount = (raw && raw.props && raw.props.count) ? raw.props.count : (raw && raw.count ? raw.count : null);
-
-    // Remove skeleton if first load
-    if (feed.posts.length === 0) grid.innerHTML = '';
-
-    if (!posts.length) {
-      feed.exhausted = true;
-      if (feed.posts.length === 0) {
-        grid.innerHTML = `<div style="grid-column:1/-1;padding:30px;text-align:center;color:var(--text3);font-size:13px;">No posts found</div>`;
-      }
-      if (btn) { btn.textContent = 'No more posts'; btn.disabled = true; }
-      feed.loading = false;
-      return;
-    }
-
-    const startIdx = feed.posts.length;
-    feed.posts.push(...posts);
-    feed.offset += posts.length;
-
-    // Popular returns full set in one shot -> exhausted after first load
-    if (isPopular) feed.exhausted = true;
-    // Latest: page size is 50; fewer means we hit the end
-    if (!isPopular && posts.length < 50) feed.exhausted = true;
-
-    // Update tab count — show API total if available, else loaded count
-    const countEl = document.getElementById(countId);
-    if (countEl) {
-      if (totalCount && !isPopular) {
-        const fmt = totalCount >= 1000000 ? (totalCount/1000000).toFixed(1)+'M' : totalCount >= 1000 ? (totalCount/1000).toFixed(0)+'K' : totalCount;
-        countEl.textContent = fmt + ' total';
-      } else {
-        countEl.textContent = feed.posts.length;
-      }
-    }
-
-    // Append new cards
-    const frag = document.createElement('div');
-    frag.innerHTML = posts.map((post, i) => buildHomeCard(post, startIdx + i)).join('');
-    Array.from(frag.children).forEach(card => {
-      const idx = parseInt(card.dataset.index);
-      card.addEventListener('click', () => openLightbox(feed.posts, idx, false, true));
-      grid.appendChild(card);
-    });
-
-    // Update load-more button
-    if (btn) {
-      if (feed.exhausted) {
-        btn.textContent = `All ${feed.posts.length} posts loaded`;
-        btn.disabled = true;
-      } else {
-        btn.textContent = `Load more (${feed.posts.length} loaded)`;
-        btn.disabled = false;
-      }
-    }
-  } catch (e) {
-    const grid = document.getElementById(gridId);
-    if (grid && feed.posts.length === 0) {
-      grid.innerHTML = `<div style="grid-column:1/-1;padding:30px;text-align:center;color:var(--text3);font-size:13px;">Failed to load — check connection or CORS proxy</div>`;
-    }
-    if (btn) { btn.textContent = 'Retry'; btn.disabled = false; }
-  }
-
-  feed.loading = false;
-}
-
-function buildHomeCard(post, i) {
-  const media = getPostMedia(post);
-  const thumb = media[0];
-  const hasVid = media.some(m => isVideo(m.path));
-  let thumbHtml = '';
-  if (thumb) {
-    const src = mediaUrl(thumb.path);
-    if (isVideo(thumb.path)) thumbHtml = `<video src="${src}" muted preload="metadata" style="pointer-events:none"></video>`;
-    else thumbHtml = `<img src="${src}" loading="lazy" onerror="this.style.opacity='0.2'">`;
-  } else {
-    thumbHtml = `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text3);font-size:28px;">◻</div>`;
-  }
-  
-  const dateStr = post.published ? new Date(post.published).toLocaleDateString() : '';
-  const creatorName = post.user || '';
-  const svc = post.service || '';
-  const favCount = post.fav_count || null;
-
-  return `<div class="post-card" data-index="${i}">
-    <div class="card-thumb">
-      ${thumbHtml}
-      ${hasVid ? `<div class="media-type-badge video">▶</div>` : ''}
-      ${media.length > 1 ? `<div class="media-count-badge">${media.length}</div>` : ''}
-      ${favCount ? `<div class="fav-badge">♥ ${favCount}</div>` : ''}
-      <div class="card-overlay"><div class="card-overlay-actions"><div class="overlay-btn">⊙</div></div></div>
-    </div>
-    <div class="card-body">
-      <div class="card-title">${escHtml(post.title || post.substring || 'Untitled')}</div>
-      ${creatorName ? `<div class="card-creator">@${escHtml(creatorName)}${svc ? ` · <span class="service-badge ${escHtml(svc)}">${escHtml(svc)}</span>` : ''}</div>` : ''}
-      ${dateStr ? `<div class="card-date">${dateStr}</div>` : ''}
-    </div>
-  </div>`;
-}
-
-// ─── SMART FETCH ────────────────────────────────────────
-// Try: active server direct -> active server proxied -> other servers direct -> other servers proxied
-async function smartFetch(path, options = {}) {
+async function cFetch(path){
   const servers = allServers();
-  // Put active server first
   const ordered = [serverCfg.active, ...servers.filter(s => s !== serverCfg.active)];
 
-  // Direct attempts first
-  for (const base of ordered) {
-    try {
-      const res = await fetch(base + path, options);
-      if (res.ok) { ACTIVE_SERVER = base; serverCfg.active = base; return res; }
-    } catch(e) {}
+  for(const b of ordered){
+    try{const r=await fetch(b+path,{headers:{Accept:'text/css'}});if(r.ok){serverCfg.active=b; activeCServer=b; saveServerConfig(); return r.json()}}catch(e){}
   }
-  // Proxy attempts
   if (serverCfg.useProxy) {
-    for (const base of ordered) {
-      try {
-        const res = await fetch(PROXY + encodeURIComponent(base + path), options);
-        if (res.ok) { ACTIVE_SERVER = base; serverCfg.active = base; return res; }
-      } catch(e) {}
+    for(const b of ordered){
+      try{const r=await fetch(PROXY+encodeURIComponent(b+path),{headers:{Accept:'text/css'}});if(r.ok){serverCfg.active=b; activeCServer=b; saveServerConfig(); return r.json()}}catch(e){}
     }
   }
-  throw new Error('All servers and proxies failed');
+  throw new Error('Coomer fetch failed: '+path);
 }
 
-// ─── CREATORS ───────────────────────────────────────────
-// If user uploaded a creators file, use that
-let uploadedCreatorsData = null;
-
-function parseCreatorsData(raw) {
-  // Handles both plain JSON array and the CSS-MIME JSON from creators.txt
-  if (Array.isArray(raw)) return raw;
-  if (raw && Array.isArray(raw.creators)) return raw.creators;
-  return null;
-}
-
-async function loadCreators(reset = false) {
-  if (reset) { state.creatorsOffset = 0; state.creators = []; }
-  updateSidebarStatus('Loading creators…');
-
-  // 1. User-uploaded file takes priority
-  if (uploadedCreatorsData) {
-    state.allCreators = uploadedCreatorsData;
-    renderCreatorList(false);
-    updateSidebarStatus(state.allCreators.length + ' creators');
-    return;
-  }
-
-  // 2. Local creators.json (self-hosted)
-  try {
-    const res = await fetch('./creators.json');
-    if (res.ok) {
-      const raw = await res.json();
-      const parsed = parseCreatorsData(raw);
-      if (parsed) { state.allCreators = parsed; renderCreatorList(false); updateSidebarStatus(parsed.length + ' creators'); return; }
-    }
-  } catch(e) {}
-
-  // 3. Active server /api/v1/creators.txt (JSON served as CSS)
-  try {
-    const res2 = await smartFetch('/api/v1/creators.txt', { headers: { "Accept": "text/css" } });
-    const raw = await res2.json();
-    const parsed = parseCreatorsData(raw);
-    if (parsed) { state.allCreators = parsed; renderCreatorList(false); updateSidebarStatus(parsed.length + ' creators'); return; }
-  } catch(e) {}
-
-  // 4. Fallback: extract creators from /api/v1/posts
-  try {
-    const res3 = await smartFetch('/api/v1/posts?o=0', { headers: { "Accept": "text/css" } });
-    const raw3 = await res3.json();
-    const posts = Array.isArray(raw3) ? raw3 : (raw3 && raw3.posts ? raw3.posts : []);
-    const seen = new Set();
-    const creators = [];
-    for (const p of posts) {
-      const key = p.service + ':' + p.user;
-      if (!seen.has(key)) { seen.add(key); creators.push({ id: p.user, name: p.user, service: p.service }); }
-    }
-    state.allCreators = creators;
-    renderCreatorList(false);
-    updateSidebarStatus(creators.length + ' creators (partial)');
-  } catch {
-    updateSidebarStatus('Failed to load');
-    document.getElementById('creatorList').innerHTML = '<p style="padding:10px;font-size:12px;color:var(--text3);">Could not load creators. Try changing server or uploading creators.txt.</p>';
-  }
-}
-
-function updateSidebarStatus(msg) {
-  const el = document.getElementById('sidebarStatus');
-  if (el) el.textContent = msg;
-}
-
-function filterCreators() {
-  if (!state.allCreators) return [];
-  let list = state.allCreators;
-  if (state.service) list = list.filter(c => c.service === state.service);
-  if (state.query) { 
-    const q = state.query.toLowerCase(); 
-    list = list.filter(c => (c.name||'').toLowerCase().includes(q) || (c.id||'').toLowerCase().includes(q)); 
-  }
-  return list;
-}
-
-function renderCreatorList(append = false) {
-  const list = filterCreators();
-  if (!append) { state.creatorsOffset = 0; document.getElementById('creatorList').innerHTML = ''; }
-  
-  const page = list.slice(state.creatorsOffset, state.creatorsOffset + 50);
-  if (page.length === 0) return;
-
-  const html = page.map(c => {
-    const initials = (c.name || c.id || '?').slice(0,2).toUpperCase();
-    const svc = c.service || '';
-    const imgUrl = `https://img.coomer.st/icons/${svc}/${c.id}`;
-    
-    if (state.currentCreator && state.currentCreator.id === c.id && state.currentCreator.name === c.id && c.name !== c.id) {
-       state.currentCreator.name = c.name; 
-       const pName = document.querySelector('.profile-name');
-       if (pName) pName.textContent = c.name;
-    }
-
-    const avatarHtml = `<img src="${imgUrl}" loading="lazy" onerror="this.replaceWith('${initials}')" alt="">`;
-
-    return `<div class="creator-card ${state.currentCreator?.id === c.id ? 'active' : ''}" data-id="${c.id}" data-service="${svc}" data-name="${escHtml(c.name||c.id)}">
-      <div class="creator-avatar">${avatarHtml}</div>
-      <div class="creator-info">
-        <div class="creator-name">${escHtml(c.name||c.id)}</div>
-        <div class="creator-meta"><span class="service-badge ${svc}">${svc||'—'}</span></div>
-      </div>
-    </div>`;
-  }).join('');
-  
-  if (append) document.getElementById('creatorList').insertAdjacentHTML('beforeend', html);
-  else document.getElementById('creatorList').innerHTML = html;
-}
-
-// ─── POSTS ──────────────────────────────────────────────
-async function loadCreatorPosts(creator, reset = true, skipUrlPush = false) {
-  if (state.isFetchingPosts) return;
-  state.isFetchingPosts = true;
-  state.currentCreator = creator;
-  state.showingHome = false;
-  document.getElementById('homeBtn').classList.remove('active');
-  
-  closeSidebar();
-
-  if (!skipUrlPush) updateURL(creator.service, creator.id);
-
-  if (reset) { 
-    state.posts = []; 
-    state.postsOffset = 0; 
-    renderProfile(creator);
-  }
-  
-  setLoading(true);
-  try {
-    const res = await smartFetch(`/api/v1/${creator.service}/user/${creator.id}/posts?o=${state.postsOffset}`, { headers: { "Accept": "text/css" } });
-    const data = await res.json();
-    state.posts = reset ? data : [...state.posts, ...data];
-    state.postsOffset += data.length;
-    renderPosts(state.posts, reset);
-  } catch (e) {
-    if (reset) renderPosts([], true);
-  } finally { 
-    setLoading(false); 
-    state.isFetchingPosts = false;
-  }
-}
-
-function renderProfile(creator) {
-  const initials = (creator.name||creator.id||'?').slice(0,2).toUpperCase();
-  const svc = creator.service || '';
-  const iconUrl = `https://img.coomer.st/icons/${svc}/${creator.id}`;
-  const bannerUrl = `https://img.coomer.st/banners/${svc}/${creator.id}`;
-
-  document.getElementById('mainContent').innerHTML = `
-    <div class="profile-banner" style="background-image: url('${bannerUrl}');"></div>
-    <div class="profile-hero">
-      <div class="profile-avatar" id="profileAvatar">
-        <img src="${iconUrl}" loading="lazy" onerror="this.replaceWith('${initials}')" alt="">
-      </div>
-      <div class="profile-details">
-        <div class="profile-name">${escHtml(creator.name||creator.id)}</div>
-        <div class="profile-badges">
-          <span class="service-badge ${svc}">${svc}</span>
-        </div>
-        <div style="font-size:12px;color:var(--text3)">ID: <code style="color:var(--text2);font-family:'DM Mono',monospace">${escHtml(creator.id)}</code></div>
-        <div class="profile-actions">
-          <a class="btn-primary" href="${ACTIVE_SERVER}/${svc}/user/${creator.id}" target="_blank">Open Profile ↗</a>
-        </div>
-      </div>
-    </div>
-    <div class="posts-toolbar" id="postsToolbar">
-      <div class="toolbar-title" id="toolbarTitle">Loading…</div>
-      <div id="sortContainer"></div>
-      <select class="filter-select" id="filterType">
-        <option value="all">All</option>
-        <option value="image">Images</option>
-        <option value="video">Videos</option>
-      </select>
-      <div class="view-toggle">
-        <button class="view-btn ${state.viewMode==='grid-3'?'active':''}" data-view="grid-3" title="Grid 3">⊞</button>
-        <button class="view-btn ${state.viewMode==='grid-4'?'active':''}" data-view="grid-4" title="Grid 4">⠿</button>
-        <button class="view-btn ${state.viewMode==='grid-list'?'active':''}" data-view="grid-list" title="List">≡</button>
-      </div>
-    </div>
-    <div class="posts-container">
-      <div class="posts-grid ${state.viewMode}" id="postsGrid"></div>
-    </div>
-  `;
-  bindContentEvents();
-}
-
-function setLoading(on) {
-  const t = document.getElementById('toolbarTitle');
-  if (t) t.innerHTML = on ? '<span class="spinner"></span>' : `${state.posts.length} posts`;
-}
-
-function renderPosts(posts, isReset) {
-  const grid = document.getElementById('postsGrid');
-  if (!grid) return;
-  const t = document.getElementById('toolbarTitle');
-  if (t) t.textContent = `${posts.length} posts`;
-
-  let filtered = [...posts];
-  if (state.filterType === 'image') filtered = filtered.filter(p => hasImage(p));
-  if (state.filterType === 'video') filtered = filtered.filter(p => hasVideo(p));
-
-  const hasDates = filtered.some(p => p.published);
-  const sortContainer = document.getElementById('sortContainer');
-
-  if (sortContainer) {
-    if (hasDates) {
-      if (!document.getElementById('sortOrder')) {
-        sortContainer.innerHTML = `
-          <select class="filter-select" id="sortOrder">
-            <option value="latest" ${state.sortOrder === 'latest' ? 'selected' : ''}>Latest</option>
-            <option value="oldest" ${state.sortOrder === 'oldest' ? 'selected' : ''}>Oldest</option>
-          </select>`;
-        document.getElementById('sortOrder').addEventListener('change', (e) => {
-          state.sortOrder = e.target.value;
-          renderPosts(state.posts, false);
-        });
-      }
-    } else {
-      sortContainer.innerHTML = '';
-    }
-  }
-
-  if (hasDates) {
-     filtered.sort((a, b) => {
-        const timeA = a.published ? (new Date(a.published).getTime() || 0) : 0;
-        const timeB = b.published ? (new Date(b.published).getTime() || 0) : 0;
-        return state.sortOrder === 'latest' ? timeB - timeA : timeA - timeB;
-     });
-  }
-
-  if (!filtered.length) {
-    grid.innerHTML = `<div style="grid-column:1/-1"><div class="state-empty"><div class="icon">◻</div><p>No posts found</p></div></div>`;
-    return;
-  }
-
-  grid.className = `posts-grid ${state.viewMode}`;
-  grid.innerHTML = filtered.map((post, i) => buildPostCard(post, i)).join('');
-
-  grid.querySelectorAll('.post-card').forEach((card, i) => {
-    card.addEventListener('click', () => openLightbox(filtered, i));
-  });
-}
-
-function buildPostCard(post, i) {
-  const media = getPostMedia(post);
-  const thumb = media[0];
-  const hasVid = media.some(m => isVideo(m.path));
-  let thumbHtml = '';
-  if (thumb) {
-    const src = mediaUrl(thumb.path);
-    if (isVideo(thumb.path)) thumbHtml = `<video src="${src}" muted preload="metadata" style="pointer-events:none"></video>`;
-    else thumbHtml = `<img src="${src}" loading="lazy" onerror="this.style.opacity='0.2'">`;
-  } else {
-    thumbHtml = `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text3);font-size:28px;">◻</div>`;
-  }
-  
-  const dateStr = post.published ? new Date(post.published).toLocaleDateString() : '';
-
-  return `<div class="post-card" data-index="${i}">
-    <div class="card-thumb">
-      ${thumbHtml}
-      ${hasVid ? `<div class="media-type-badge video">▶ VIDEO</div>` : ''}
-      ${media.length > 1 ? `<div class="media-count-badge">${media.length}</div>` : ''}
-      <div class="card-overlay"><div class="card-overlay-actions"><div class="overlay-btn">⊙</div></div></div>
-    </div>
-    <div class="card-body">
-      <div class="card-title">${escHtml(post.title || 'Untitled')}</div>
-      ${dateStr ? `<div class="card-date">${dateStr}</div>` : ''}
-    </div>
-  </div>`;
-}
-
-// ─── LIGHTBOX (REELS) ───────────────────────────────────
-function openLightbox(posts, postIndex, skipUrlPush = false, homeMode = false) {
-  const post = posts[postIndex];
-  state.lightbox = { open: true, media: getPostMedia(post), index: 0, postData: post, postIndex, postsArray: posts, homeMode };
-  
-  if (state.currentCreator) {
-     const svc = state.currentCreator.service;
-     const id = state.currentCreator.id;
-     document.getElementById('lbTagAvatar').src = `https://img.coomer.st/icons/${svc}/${id}`;
-     document.getElementById('lbCreatorTag').style.backgroundImage = `url('https://img.coomer.st/banners/${svc}/${id}')`;
-     document.getElementById('lbTagName').textContent = state.currentCreator.name || id;
-     document.getElementById('lbTagSvc').textContent = svc;
-  } else if (post.user) {
-    const svc = post.service || '';
-    document.getElementById('lbTagAvatar').src = `https://img.coomer.st/icons/${svc}/${post.user}`;
-    document.getElementById('lbCreatorTag').style.backgroundImage = '';
-    document.getElementById('lbTagName').textContent = post.user;
-    document.getElementById('lbTagSvc').textContent = svc;
-  }
-
-  document.getElementById('lbPrevPost').disabled = postIndex === 0;
-  document.getElementById('lbNextPost').disabled = postIndex === posts.length - 1;
-
-  renderLbThumbnails(state.lightbox.media);
-  showLbMedia(0);
-  
-  document.getElementById('lightbox').classList.add('open');
-  document.body.style.overflow = 'hidden';
-
-  if (!skipUrlPush && state.currentCreator && !homeMode) {
-    updateURL(state.currentCreator.service, state.currentCreator.id, post.id);
-  }
-}
-
-function closeLightbox(skipUrlPush = false) {
-  document.getElementById('lightbox').classList.remove('open');
-  document.body.style.overflow = '';
-  const video = document.querySelector('.video-wrap video');
-  if (video) video.pause();
-  state.lightbox.open = false;
-
-  if (!skipUrlPush && state.currentCreator && !state.lightbox.homeMode) {
-    updateURL(state.currentCreator.service, state.currentCreator.id);
-  }
-}
-
-function jumpToPost(offset) {
-  if (!state.lightbox.open) return;
-  const newIndex = state.lightbox.postIndex + offset;
-  const posts = state.lightbox.postsArray;
-  
-  if (newIndex >= 0 && newIndex < posts.length) {
-    openLightbox(posts, newIndex, false, state.lightbox.homeMode);
-  } else if (newIndex >= posts.length && !state.isFetchingPosts && state.posts.length >= state.postsOffset && !state.lightbox.homeMode) {
-    loadCreatorPosts(state.currentCreator, false).then(() => {
-      if (state.lightbox.postIndex + offset < state.posts.length) {
-         openLightbox(state.posts, state.lightbox.postIndex + offset);
-      }
-    });
-  }
-}
-
-function showLbMedia(idx) {
-  const lb = state.lightbox;
-  if (idx < 0 || idx >= lb.media.length) return;
-  lb.index = idx;
-  const item = lb.media[idx];
-  const url = mediaUrl(item.path);
-
-  document.getElementById('lbTitle').textContent = lb.postData.title || 'Untitled Post';
-  document.getElementById('lbCounter').textContent = `${idx+1} / ${lb.media.length}`;
-  document.getElementById('lbDownload').href = url;
-
-  const ma = document.getElementById('lbMediaArea');
-  ma.querySelectorAll('img.main-media, .video-wrap').forEach(e => e.remove());
-
-  if (isVideo(item.path)) {
-    const wrap = document.createElement('div');
-    wrap.className = 'video-wrap';
-    wrap.innerHTML = `
-      <video id="lbVideo" src="${url}" preload="auto" autoplay loop></video>
-      <div class="custom-controls">
-        <div class="progress-wrap" id="progressWrap">
-          <div class="progress-fill" id="progressFill"></div>
-          <div class="progress-thumb" id="progressThumb"></div>
-        </div>
-        <div class="controls-row">
-          <button class="ctrl-btn" id="playBtn">⏸</button>
-          <div class="time-display" id="timeDisplay">0:00 / 0:00</div>
-          <div style="flex:1"></div>
-          <div class="volume-wrap">
-            <button class="ctrl-btn" id="muteBtn">🔊</button>
-            <input class="volume-slider" type="range" id="volSlider" min="0" max="1" step="0.05" value="1">
-          </div>
-        </div>
-      </div>`;
-    ma.insertBefore(wrap, ma.querySelector('.lb-nav.next'));
-    initVideoPlayer(wrap.querySelector('video'));
-  } else {
-    const img = document.createElement('img');
-    img.src = url;
-    img.className = 'main-media';
-    ma.insertBefore(img, ma.querySelector('.lb-nav.next'));
-  }
-
-  const post = lb.postData;
-  const date = post.published ? new Date(post.published).toLocaleDateString() : '—';
-  document.getElementById('lbInfo').innerHTML = `
-    <div class="lb-info-title">${escHtml(post.title||'Untitled')}</div>
-    <div class="lb-info-row"><span>Published</span><span>${date}</span></div>
-    <div class="lb-info-row"><span>Files</span><span>${lb.media.length}</span></div>
-    ${post.content ? `<div class="lb-info-content">${escHtml(post.content).replace(/\n/g, '<br>')}</div>` : ''}
-  `;
-
-  document.getElementById('lbPrev').disabled = idx === 0;
-  document.getElementById('lbNext').disabled = idx === lb.media.length - 1;
-
-  document.querySelectorAll('.lb-thumb').forEach((el, i) => el.classList.toggle('active', i === idx));
-}
-
-function renderLbThumbnails(media) {
-  const grid = document.getElementById('lbThumbnails');
-  const thumbs = media.map((m, i) => { return { url: mediaUrl(m.path), vid: isVideo(m.path), i }; });
-  
-  grid.innerHTML = thumbs.map(({url, vid, i}) => `
-    <div class="lb-thumb ${i===0?'active':''}" data-lb-idx="${i}">
-      ${vid ? `<video src="${url}" muted preload="metadata"></video>` : `<img src="${url}" loading="lazy">`}
-    </div>`).join('');
-    
-  grid.querySelectorAll('[data-lb-idx]').forEach(el => el.addEventListener('click', () => showLbMedia(+el.dataset.lbIdx)));
-}
-
-function initVideoPlayer(video) {
-  const playBtn = document.getElementById('playBtn');
-  const progressFill = document.getElementById('progressFill');
-  const progressThumb = document.getElementById('progressThumb');
-  const progressWrap = document.getElementById('progressWrap');
-  const timeDisplay = document.getElementById('timeDisplay');
-  const muteBtn = document.getElementById('muteBtn');
-  const volSlider = document.getElementById('volSlider');
-
-  function fmtTime(s) { const m = Math.floor(s/60); return `${m}:${String(Math.floor(s%60)).padStart(2,'0')}`; }
-
-  video.addEventListener('timeupdate', () => {
-    if (!video.duration) return;
-    const pct = (video.currentTime / video.duration * 100).toFixed(2);
-    progressFill.style.width = pct + '%';
-    progressThumb.style.left = pct + '%';
-    timeDisplay.textContent = `${fmtTime(video.currentTime)} / ${fmtTime(video.duration)}`;
-  });
-  video.addEventListener('play', () => { playBtn.textContent = '⏸'; });
-  video.addEventListener('pause', () => { playBtn.textContent = '▶'; });
-
-  if (playBtn) playBtn.addEventListener('click', () => video.paused ? video.play() : video.pause());
-  if (progressWrap) progressWrap.addEventListener('click', e => {
-    const r = progressWrap.getBoundingClientRect();
-    video.currentTime = ((e.clientX - r.left) / r.width) * video.duration;
-  });
-  if (muteBtn) muteBtn.addEventListener('click', () => { video.muted = !video.muted; muteBtn.textContent = video.muted ? '🔇' : '🔊'; });
-  if (volSlider) volSlider.addEventListener('input', () => { video.volume = volSlider.value; });
-
-  video.play().catch(()=>{});
-}
-
-// ─── HELPERS ────────────────────────────────────────────
-function mediaUrl(path) {
-  if (!path) return '';
-  if (path.startsWith('http')) return path;
-  return `${ACTIVE_SERVER}${path}`;
-}
-function isVideo(path) { return /\.(mp4|webm|mov|mkv|avi|m4v|ogv)(\?.*)?$/i.test(path); }
-function hasImage(post) { return getPostMedia(post).some(m => !isVideo(m.path)); }
-function hasVideo(post) { return getPostMedia(post).some(m => isVideo(m.path)); }
-function getPostMedia(post) {
-  const items = [];
-  if (post.file && post.file.path) items.push(post.file);
-  if (post.attachments) items.push(...post.attachments.filter(a => a && a.path));
-  return items;
-}
-function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-
-// ─── SIDEBAR TOGGLE ────────────────────────────────────
-function openSidebar() {
-  document.getElementById('sidebarContainer').classList.add('open');
-  document.getElementById('sidebarOverlay').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-function closeSidebar() {
-  document.getElementById('sidebarContainer').classList.remove('open');
-  document.getElementById('sidebarOverlay').classList.remove('open');
-  if (!state.lightbox.open) document.body.style.overflow = '';
-}
-
-// ─── EVENTS ─────────────────────────────────────────────
-function bindEvents() {
-  // Hamburger
-  document.getElementById('hamburgerBtn').addEventListener('click', () => {
-    const sidebar = document.getElementById('sidebarContainer');
-    if (sidebar.classList.contains('open')) closeSidebar();
-    else openSidebar();
-  });
-  document.getElementById('sidebarOverlay').addEventListener('click', closeSidebar);
-
-  // Home button
-  document.getElementById('homeBtn').addEventListener('click', () => {
-    if (!state.showingHome) {
-      updateURL(null, null);
-      showHomePage();
-    }
-  });
-
-  const sidebar = document.getElementById('sidebarContainer');
-  sidebar.addEventListener('scroll', () => {
-    if (sidebar.scrollTop + sidebar.clientHeight >= sidebar.scrollHeight - 100) {
-      if (state.creatorsOffset + 50 < filterCreators().length) {
-        state.creatorsOffset += 50;
-        renderCreatorList(true); 
-      }
-    }
-  });
-
-  const content = document.getElementById('mainContent');
-  content.addEventListener('scroll', () => {
-    const nearBottom = content.scrollTop + content.clientHeight >= content.scrollHeight - 400;
-    if (nearBottom) {
-      // Creator posts infinite scroll
-      if (state.currentCreator && !state.isFetchingPosts && (state.posts.length >= state.postsOffset)) {
-        loadCreatorPosts(state.currentCreator, false);
-      }
-      // Home latest feed infinite scroll
-      if (state.showingHome && activeHomeTab === 'latest' && !homeFeed.latest.loading && !homeFeed.latest.exhausted) {
-        loadHomeFeed('latest');
-      }
-    }
-  });
-
-  document.getElementById('creatorList').addEventListener('click', e => {
-    const card = e.target.closest('.creator-card');
-    if (!card) return;
-    const creator = { id: card.dataset.id, service: card.dataset.service, name: card.dataset.name };
-    document.querySelectorAll('.creator-card').forEach(c => c.classList.remove('active'));
-    card.classList.add('active');
-    loadCreatorPosts(creator, true); 
-  });
-
-  let searchTimer;
-  document.getElementById('searchInput').addEventListener('input', e => {
-    state.query = e.target.value.trim();
-    clearTimeout(searchTimer);
-    searchTimer = setTimeout(() => { state.creatorsOffset = 0; renderCreatorList(false); }, 200);
-    // Open sidebar on mobile if user starts searching
-    if (window.innerWidth <= 900 && state.query) openSidebar();
-  });
-
-  document.querySelectorAll('.service-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.service-tab').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      state.service = tab.dataset.service;
-      state.creatorsOffset = 0;
-      renderCreatorList(false);
-    });
-  });
-
-  document.getElementById('lbClose').addEventListener('click', () => closeLightbox(false));
-  document.getElementById('lbPrev').addEventListener('click', () => showLbMedia(state.lightbox.index - 1));
-  document.getElementById('lbNext').addEventListener('click', () => showLbMedia(state.lightbox.index + 1));
-  document.getElementById('lbPrevPost').addEventListener('click', () => jumpToPost(-1));
-  document.getElementById('lbNextPost').addEventListener('click', () => jumpToPost(1));
-
-  // Touch swipe for lightbox (mobile)
-  let touchStartX = 0, touchStartY = 0;
-  document.getElementById('lightbox').addEventListener('touchstart', e => {
-    touchStartX = e.changedTouches[0].clientX;
-    touchStartY = e.changedTouches[0].clientY;
-  }, { passive: true });
-  document.getElementById('lightbox').addEventListener('touchend', e => {
-    const dx = e.changedTouches[0].clientX - touchStartX;
-    const dy = e.changedTouches[0].clientY - touchStartY;
-    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
-      if (dx < 0) showLbMedia(state.lightbox.index + 1);
-      else showLbMedia(state.lightbox.index - 1);
-    } else if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 60) {
-      if (dy < 0) jumpToPost(1);
-      else jumpToPost(-1);
-    }
-  }, { passive: true });
-
-  let wheelTimeout;
-  document.getElementById('lightbox').addEventListener('wheel', (e) => {
-    if (!state.lightbox.open) return;
-    if (e.target.closest('.lb-sidebar') || e.target.closest('.lb-info-content')) return; 
-    if (Math.abs(e.deltaY) < 15) return; 
-    if (wheelTimeout) return;
-    wheelTimeout = setTimeout(() => { wheelTimeout = null; }, 600); 
-    if (e.deltaY > 0) jumpToPost(1);
-    else if (e.deltaY < 0) jumpToPost(-1);
-  }, {passive: true});
-
-  document.addEventListener('keydown', e => {
-    if (!state.lightbox.open) return;
-    if (e.key === 'Escape') closeLightbox(false);
-    if (e.key === 'ArrowLeft') showLbMedia(state.lightbox.index - 1);
-    if (e.key === 'ArrowRight') showLbMedia(state.lightbox.index + 1);
-    if (e.key === 'ArrowUp' || e.key === 'w') jumpToPost(-1);
-    if (e.key === 'ArrowDown' || e.key === 's') jumpToPost(1);
-  });
-
-  document.getElementById('lightbox').addEventListener('click', e => {
-    if (e.target === document.getElementById('lightbox') || e.target === document.getElementById('lbBody')) closeLightbox(false);
-  });
-}
-
-function bindContentEvents() {
-  document.querySelectorAll('.view-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      state.viewMode = btn.dataset.view;
-      renderPosts(state.posts, false);
-    });
-  });
-
-  const filterSel = document.getElementById('filterType');
-  if (filterSel) filterSel.addEventListener('change', () => {
-    state.filterType = filterSel.value;
-    renderPosts(state.posts, false);
-  });
-}
-
-
-// ─── SERVER MODAL ────────────────────────────────────────
-function openServerModal() {
-  renderServerModal();
-  document.getElementById('serverModal').classList.add('open');
-}
-function closeServerModal() {
-  document.getElementById('serverModal').classList.remove('open');
-}
+async function lFetch(path, opts = {}){return fetchJ(LGAPI+path, opts)}
+
+// ── MODAL SERVER LOGIC ──────────────────────────────────
+function openServerModal() { renderServerModal(); $('serverModal').classList.add('open'); }
+function closeServerModal() { $('serverModal').classList.remove('open'); }
 
 function renderServerModal() {
-  // Built-in servers
-  const builtinEl = document.getElementById('builtinServerList');
+  const builtinEl = $('builtinServerList');
   builtinEl.innerHTML = BUILTIN_SERVERS.map(url => {
     const isActive = serverCfg.active === url;
     return `<div class="server-row ${isActive ? 'active-server' : ''}">
@@ -1615,37 +598,23 @@ function renderServerModal() {
     </div>`;
   }).join('');
 
-  // Custom servers
   renderCustomServerList();
-
-  // Uploaded file name
-  const nameEl = document.getElementById('uploadedFileName');
-  if (nameEl) nameEl.textContent = uploadedCreatorsData ? ('✓ ' + (uploadedCreatorsFileName || 'file loaded')) : 'No file selected';
-
-  // Proxy toggle
-  const toggle = document.getElementById('useProxyToggle');
-  if (toggle) toggle.checked = serverCfg.useProxy;
-
-  // Ping all servers
+  const toggle = $('useProxyToggle'); if (toggle) toggle.checked = serverCfg.useProxy;
   pingServers();
 
-  // Use-server buttons
   builtinEl.querySelectorAll('[data-use]').forEach(btn => {
     btn.addEventListener('click', () => {
       serverCfg.active = btn.dataset.use;
-      ACTIVE_SERVER = serverCfg.active;
-      saveServerConfig();
-      renderServerModal();
+      activeCServer = serverCfg.active;
+      saveServerConfig(); renderServerModal();
     });
   });
 }
 
 function renderCustomServerList() {
-  const el = document.getElementById('customServerList');
-  if (!serverCfg.custom.length) {
-    el.innerHTML = '<div style="font-size:12px;color:var(--text3);padding:4px 0;">No custom servers added.</div>';
-    return;
-  }
+  const el = $('customServerList');
+  if (!serverCfg.custom.length) { el.innerHTML = '<div style="font-size:13px;color:var(--text3);padding:6px 0;">No custom servers added.</div>'; return; }
+  
   el.innerHTML = serverCfg.custom.map((url, i) => {
     const isActive = serverCfg.active === url;
     return `<div class="server-row ${isActive ? 'active-server' : ''}">
@@ -1657,20 +626,13 @@ function renderCustomServerList() {
   }).join('');
 
   el.querySelectorAll('[data-use]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      serverCfg.active = btn.dataset.use;
-      ACTIVE_SERVER = serverCfg.active;
-      saveServerConfig();
-      renderServerModal();
-    });
+    btn.addEventListener('click', () => { serverCfg.active = btn.dataset.use; activeCServer = serverCfg.active; saveServerConfig(); renderServerModal(); });
   });
   el.querySelectorAll('[data-del]').forEach(btn => {
     btn.addEventListener('click', () => {
-      const i = parseInt(btn.dataset.del);
-      serverCfg.custom.splice(i, 1);
+      const i = parseInt(btn.dataset.del); serverCfg.custom.splice(i, 1);
       if (!allServers().includes(serverCfg.active)) serverCfg.active = BUILTIN_SERVERS[0];
-      saveServerConfig();
-      renderServerModal();
+      saveServerConfig(); renderServerModal();
     });
   });
 }
@@ -1680,124 +642,770 @@ async function pingServers() {
   for (const badge of badges) {
     const url = badge.dataset.ping;
     try {
-      const t = Date.now();
-      const res = await fetch(url + '/api/v1/posts?o=0', { method: 'HEAD', cache: 'no-store' });
+      const t = Date.now(); const res = await fetch(url + '/api/v1/posts?o=0', { method: 'HEAD', cache: 'no-store' });
       const ms = Date.now() - t;
-      if (res.ok || res.status === 405) {
-        badge.textContent = ms + 'ms';
-        badge.className = 'server-row-status ok';
-      } else {
-        badge.textContent = res.status;
-        badge.className = 'server-row-status err';
-      }
-    } catch(e) {
-      badge.textContent = 'offline';
-      badge.className = 'server-row-status err';
+      if (res.ok || res.status === 405) { badge.textContent = ms + 'ms'; badge.className = 'server-row-status ok'; } 
+      else { badge.textContent = res.status; badge.className = 'server-row-status err'; }
+    } catch(e) { badge.textContent = 'offline'; badge.className = 'server-row-status err'; }
+  }
+}
+
+function bindServerModal() {
+  $('serverBtn').addEventListener('click', openServerModal);
+  $('serverModalClose').addEventListener('click', closeServerModal);
+  $('serverModal').addEventListener('click', e => { if (e.target === $('serverModal')) closeServerModal(); });
+
+  $('addServerBtn').addEventListener('click', () => {
+    let url = $('customServerInput').value.trim();
+    if (!url) return;
+    if (!url.startsWith('http')) url = 'https://' + url;
+    url = url.replace(/\/$/, '');
+    if (!serverCfg.custom.includes(url) && !BUILTIN_SERVERS.includes(url)) { serverCfg.custom.push(url); saveServerConfig(); }
+    $('customServerInput').value = ''; renderServerModal();
+  });
+  $('customServerInput').addEventListener('keydown', e => { if (e.key === 'Enter') $('addServerBtn').click(); });
+  $('useProxyToggle').addEventListener('change', e => { serverCfg.useProxy = e.target.checked; saveServerConfig(); });
+
+  const handleCreatorsFile = (file) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const raw = JSON.parse(e.target.result);
+        const list = Array.isArray(raw) ? raw : (raw?.creators || []);
+        if(!list.length) return alert('No creators found in file. Ensure it is a valid creators.json/txt array.');
+        
+        S.allCreators = list.map(c => ({
+          id: c.id, name: c.name || c.id, svc: 'coomer', 
+          coomerSvc: c.service || 'onlyfans', avatar: cIcon(c.service || '', c.id)
+        }));
+        
+        renderSidebar();
+        $('uploadedFileName').textContent = '✓ ' + file.name;
+        if($('serverModal').classList.contains('open')) closeServerModal();
+      } catch(err) { alert('Error parsing JSON file: ' + err.message); }
+    };
+    reader.readAsText(file);
+  };
+
+  $('modalCreatorsFile').addEventListener('change', e => { if(e.target.files[0]) handleCreatorsFile(e.target.files[0]); });
+  $('sbCreatorsFile').addEventListener('change', e => { if(e.target.files[0]) handleCreatorsFile(e.target.files[0]); });
+}
+
+// ── SIDEBAR CREATORS INITIALIZATION ──────────────────────
+async function loadCreators() {
+  $('sbStatus').textContent = 'Loading...';
+  let list = [];
+  try {
+    const res = await fetch('./creators.json');
+    if (res.ok) {
+      const raw = await res.json();
+      list = Array.isArray(raw) ? raw : (raw?.creators || []);
+    }
+  } catch(e) {}
+
+  if (!list.length) {
+    try {
+      const raw = await cFetch('/api/v1/creators.txt');
+      list = Array.isArray(raw) ? raw : (raw?.creators || []);
+    } catch(e) {}
+  }
+
+  S.allCreators = list.map(c => ({
+    id: c.id,
+    name: c.name || c.id,
+    svc: 'coomer', 
+    coomerSvc: c.service || 'onlyfans',
+    avatar: cIcon(c.service || '', c.id)
+  }));
+  
+  renderSidebar();
+}
+
+function renderSidebar(append = false) {
+  const el = $('creatorList');
+  if (!append) { S.creatorsOffset = 0; el.innerHTML = ''; }
+  
+  let filtered = S.allCreators;
+  if (S.svc === 'coomer') filtered = filtered.filter(c => c.svc === 'coomer');
+  if (S.svc === 'leak') filtered = filtered.filter(c => c.svc === 'leak');
+  
+  if (S.query) {
+    const ql = S.query.toLowerCase();
+    filtered = filtered.filter(c => c.name.toLowerCase().includes(ql) || c.id.toLowerCase().includes(ql));
+  }
+  
+  $('sbStatus').textContent = filtered.length + ' loaded';
+  const page = filtered.slice(S.creatorsOffset, S.creatorsOffset + 50);
+  
+  if (!page.length && !append) {
+    el.innerHTML = '<div class="empty"><div class="big">◈</div><p>No creators found</p></div>';
+    return;
+  }
+
+  const html = page.map((r, i) => {
+    const idx = S.creatorsOffset + i;
+    const isOn = S.profile?.id === r.id && S.profile?.svc === r.svc;
+    return `<div class="cc${isOn ? ' on' : ''}" data-idx="${idx}">
+      <div class="cav"><img src="${esc(r.avatar)}" onerror="this.style.opacity='.2'" loading="lazy"></div>
+      <div class="ci">
+        <div class="cn">@${esc(r.name)}</div>
+        <div class="cm"><span class="stag ${r.svc}">${r.svc==='coomer'?(r.coomerSvc||'OF'):'LeakGallery'}</span></div>
+      </div>
+    </div>`;
+  }).join('');
+  
+  if (append) el.insertAdjacentHTML('beforeend', html);
+  else el.innerHTML = html;
+  
+  el.querySelectorAll('.cc:not(.bound)').forEach(c => {
+    c.classList.add('bound');
+    c.addEventListener('click', () => {
+      closeSidebar();
+      loadProfile(filtered[+c.dataset.idx]);
+      el.querySelectorAll('.cc').forEach(x => x.classList.remove('on'));
+      c.classList.add('on');
+    });
+  });
+}
+
+$('creatorList').addEventListener('scroll', () => {
+  const el = $('creatorList');
+  if (el.scrollTop + el.clientHeight >= el.scrollHeight - 50) {
+     let filtered = S.allCreators;
+     if (S.svc === 'coomer') filtered = filtered.filter(c => c.svc === 'coomer');
+     if (S.svc === 'leak') filtered = filtered.filter(c => c.svc === 'leak');
+     if (S.query) {
+       const ql = S.query.toLowerCase();
+       filtered = filtered.filter(c => c.name.toLowerCase().includes(ql) || c.id.toLowerCase().includes(ql));
+     }
+     
+     if (S.creatorsOffset + 50 < filtered.length) {
+        S.creatorsOffset += 50;
+        renderSidebar(true);
+     }
+  }
+});
+
+
+// ── HOME ─────────────────────────────────────────────────
+function getTabDefs(){
+  const tabs=[];
+  if(S.svc==='coomer'||S.svc==='both'){
+    tabs.push({key:'cp',icon:'⭐',label:'Popular'});
+    tabs.push({key:'cl',icon:'🕒',label:'Latest'});
+  }
+  if(S.svc==='leak'||S.svc==='both'){
+    tabs.push({key:'ld',icon:'🔥',label:'Trending'});
+  }
+  return tabs;
+}
+
+function showHome(skipUrl = false){
+  S.view='home';$('homeBtn').classList.add('on');closeLB(true);
+  
+  if (!skipUrl) updateURL(null, null);
+
+  const tabs=getTabDefs();
+  $('cscroll').innerHTML=`
+    <div>
+      <div class="htabs-bar" id="htbar">
+        ${tabs.map((t,i)=>`<div class="htab${i===0?' on':''}" data-k="${t.key}">${t.icon} ${t.label}<span class="htab-ct" id="hct-${t.key}">—</span></div>`).join('')}
+      </div>
+      ${tabs.map((t,i)=>`<div class="hsec${i===0?' on':''}" id="hs-${t.key}">${skel(8)}<button class="lmore" id="lm-${t.key}" disabled>Loading…</button></div>`).join('')}
+    </div>`;
+
+  $('htbar').addEventListener('click',e=>{
+    const t=e.target.closest('.htab');if(!t)return;
+    const k=t.dataset.k;S.activeTab=k;
+    document.querySelectorAll('.htab').forEach(x=>x.classList.remove('on'));t.classList.add('on');
+    document.querySelectorAll('.hsec').forEach(x=>x.classList.remove('on'));
+    $(`hs-${k}`).classList.add('on');
+    const f=S.htabs[k];
+    if(!(f.posts||f.items||[]).length&&!f.load)loadTab(k);
+  });
+  tabs.forEach(t=>{const b=$(`lm-${t.key}`);if(b)b.addEventListener('click',()=>loadTab(t.key));});
+  S.activeTab=tabs[0].key;
+  loadTab(tabs[0].key);
+}
+
+async function loadTab(key){
+  const f=S.htabs[key];if(f.load||f.done)return;
+  f.load=true;
+  const btn=$(`lm-${key}`);
+  if(btn){btn.disabled=true;btn.innerHTML='<span class="spin"></span> Loading…'}
+
+  try{
+    let items=[],done=false;
+    if(key==='cp'){
+      const raw=await cFetch('/api/v1/posts/popular?period=recent');
+      items=raw?.posts||(Array.isArray(raw)?raw:[]);done=true;
+      const b=$(`hct-${key}`);if(b)b.textContent=raw?.props?.count??items.length;
+    }else if(key==='cl'){
+      const raw=await cFetch(`/api/v1/posts?o=${f.off}`);
+      items=raw?.posts||(Array.isArray(raw)?raw:[]);done=items.length<50;
+      const b=$(`hct-${key}`);if(b&&raw?.count)b.textContent=fmt(raw.count);
+    }else if(key==='ld'){
+      const raw=await lFetch(`/popular/media/Day/${f.page}?fake=true`);
+      items=Array.isArray(raw)?raw:[];done=items.length===0;
+    }
+
+    const sec=$(`hs-${key}`);
+    sec.querySelectorAll('.skel').forEach(s=>s.remove());
+    let g=sec.querySelector('.mgrid');
+    if(!g){g=document.createElement('div');g.className=gcls();sec.insertBefore(g,sec.querySelector('.lmore'))}
+
+    const start=g.children.length;
+    if(key.startsWith('c')){f.posts=(f.posts||[]).concat(items);f.off+=items.length;}
+    else{f.items=(f.items||[]).concat(items);f.page++;}
+    f.done=done;
+
+    items.forEach((item,i)=>{
+       const card = buildCard(item,key,start+i);
+       card.style.animationDelay = `${i * 0.03}s`;
+       g.appendChild(card);
+    });
+
+    const total=(f.posts||f.items||[]).length;
+    const b=$(`hct-${key}`);
+    if(b&&key!=='cp')b.textContent=total+(done?'':'+');
+    if(btn){
+      if(done){btn.textContent=`All ${total} loaded`;btn.disabled=true;}
+      else{btn.textContent=`Load more (${total} loaded)`;btn.disabled=false;}
+    }
+  }catch(e){
+    const sec=$(`hs-${key}`);
+    if(sec&&!(S.htabs[key].posts||S.htabs[key].items||[]).length){
+      sec.querySelectorAll('.mgrid,.skel').forEach(x=>x.remove());
+      const d=document.createElement('div');d.className='empty';
+      d.innerHTML=`<div class="big">⚠</div><p>Failed to load</p>`;
+      sec.insertBefore(d,sec.querySelector('.lmore'));
+    }
+    if(btn){btn.textContent='Retry';btn.disabled=false;}
+  }
+  f.load=false;
+}
+
+function buildCard(item,tabKey,idx){
+  const div=document.createElement('div');div.className='mcard';
+  const isLeak=tabKey==='ld';
+  let thumb,vid,cname,cav;
+  if(isLeak){
+    thumb=lUrl(item.thumbnail_path);vid=item.is_video;
+    cname=item.profile?.username||'';cav=item.profile?.profile_pic||'';
+  }else{
+    const m=getCoomerMedia(item);const first=m[0];
+    thumb=first?cMediaUrl(first.path):'';vid=first?isVid(first.path):false;
+    cname=item.user||'';cav=cIcon(item.service||'',item.user||'');
+  }
+  div.innerHTML=`<div class="mthumb">
+    ${thumb?(vid?`<video src="${esc(thumb)}" muted preload="metadata" style="pointer-events:none"></video>`:`<img src="${esc(thumb)}" loading="lazy" onerror="this.style.opacity='.12'">`):'<div style="height:100%;background:var(--bg5)"></div>'}
+    ${vid?'<div class="vbadge">▶ VIDEO</div>':''}
+    <div class="movlay"><div class="movlay-c">
+      ${cav?`<img src="${esc(cav)}" onerror="this.style.display='none'" loading="lazy">`:''}
+      ${cname?`@${esc(cname)}`:''}
+    </div></div>
+  </div>`;
+  div.addEventListener('click',()=>{
+    if(isLeak){
+      openLBLeak(S.htabs.ld.items,idx,null);
+    }else{
+      const arr=tabKey==='cp'?S.htabs.cp.posts:S.htabs.cl.posts;
+      openLBCoomer(arr,idx,null);
+    }
+  });
+  return div;
+}
+
+// ── SEARCH ───────────────────────────────────────────────
+let searchTimer;
+async function doSearch(q){
+  S.query = q;
+  renderSidebar();
+
+  if(!q.trim())return;
+  S.view='search';$('homeBtn').classList.remove('on');closeLB(true);
+  $('cscroll').innerHTML=`<div class="sres"><div class="sres-title">Searching "${esc(q)}"…</div><div id="srBody"><span class="spin"></span></div></div>`;
+  
+  const results=[];const svc=S.svc;
+  
+  if(svc==='coomer'||svc==='both'){
+    const ql = q.toLowerCase();
+    S.allCreators.filter(c => c.name.toLowerCase().includes(ql) || c.id.toLowerCase().includes(ql)).slice(0, 25).forEach(c => {
+      results.push(c);
+    });
+  }
+
+  try{
+    if(svc==='leak'||svc==='both'){
+      // USE POST REQUEST FOR LEAKGALLERY SEARCH
+      const raw=await lFetch(`/search`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ search: q })
+      });
+      (Array.isArray(raw)?raw:[]).forEach(c=>{
+        results.push({svc:'leak',id:c.username,name:c.username,avatar:c.profile_pic,views:c.all_time_views,banner:c.banner_pic});
+      });
+    }
+  }catch(e){}
+
+  const body=$('srBody');if(!body)return;
+  if(!results.length){body.innerHTML='<div class="empty"><div class="big">◻</div><p>No creators found</p></div>';return;}
+  body.innerHTML=results.map((r,i)=>{
+    const tag=r.svc==='coomer'?`<span class="stag coomer">${r.coomerSvc||'OF'}</span>`:'<span class="stag leak">LeakGallery</span>';
+    return`<div class="spc" data-i="${i}" style="animation-delay:${i * 0.02}s">
+      <img class="spc-av" src="${esc(r.avatar||'')}" onerror="this.style.opacity='.2'" loading="lazy">
+      <div class="spc-info">
+        <div class="spc-n">@${esc(r.name)} ${tag}</div>
+        <div class="spc-s">${r.views?'👁 '+fmt(r.views)+' views':''}</div>
+      </div>
+      <span style="color:var(--text3); font-size: 18px;">›</span>
+    </div>`;
+  }).join('');
+  
+  body.querySelectorAll('.spc').forEach(c=>c.addEventListener('click',()=>{
+    const r=results[+c.dataset.i];
+    loadProfile(r);
+  }));
+}
+
+// ── PROFILE ──────────────────────────────────────────────
+async function loadProfile(creator, skipUrl = false){
+  S.view='profile';S.profile=creator;S.pMedias=[];S.pPage=1;S.pLoad=false;S.pDone=false;
+  $('homeBtn').classList.remove('on');
+  renderSidebar();
+
+  if (!skipUrl) {
+    updateURL(creator.svc === 'leak' ? 'leak' : creator.coomerSvc, creator.id);
+  }
+  
+  const av=creator.avatar||(creator.svc==='coomer'?cIcon(creator.coomerSvc||'',creator.id):'');
+  const bn=creator.svc==='coomer'?cBanner(creator.coomerSvc||'',creator.id):(creator.banner||'');
+  const ext=creator.svc==='coomer'?`${activeCServer}/${creator.coomerSvc}/user/${creator.id}`:`https://leakgallery.com/${creator.id}`;
+  
+  $('cscroll').innerHTML=`
+    <div class="p-banner" style="${bn?`background-image:url('${esc(bn)}')`:''}"></div>
+    <div class="p-hero">
+      <div class="p-av"><img src="${esc(av)}" onerror="this.style.opacity='.2'" alt=""></div>
+      <div class="p-det">
+        <div class="p-name">@${esc(creator.name)}</div>
+        <div class="p-stats">
+          <span class="pst"><span class="stag ${creator.svc}" style="font-size:10px">${creator.svc==='coomer'?(creator.coomerSvc||'onlyfans'):'LeakGallery'}</span></span>
+          ${creator.views?`<span class="pst">👁 <strong>${fmt(creator.views)}</strong></span>`:''}
+          <span class="pst" id="ppc">…</span>
+        </div>
+        <div class="p-acts">
+          <a class="btn-p" href="${esc(ext)}" target="_blank">Open ↗</a>
+        </div>
+      </div>
+    </div>
+    <div class="tbar" id="ptbar">
+      <div class="tbar-title" id="ptitle"><span class="spin"></span></div>
+      ${creator.svc==='leak'?`
+        <select class="fsel" id="psort"><option value="MostRecent">Recent</option><option value="MostViewed">Viewed</option><option value="MostLiked">Liked</option></select>
+        <select class="fsel" id="ptype"><option value="All">All</option><option value="Image">Images</option><option value="Video">Videos</option></select>
+      `:''}
+      <div class="gtog">
+        <button class="gb${S.gs===2?' on':''}" data-g="2">▦</button>
+        <button class="gb${S.gs===3?' on':''}" data-g="3">⊞</button>
+        <button class="gb${S.gs===4?' on':''}" data-g="4">⠿</button>
+        <button class="gb${S.gs===5?' on':''}" data-g="5">⋮⋮</button>
+      </div>
+    </div>
+    <div id="pgrid" style="padding:14px">${skel(12)}</div>
+    <button class="lmore" id="plmore" style="margin:0 14px 30px" disabled>Loading…</button>`;
+
+  $('ptbar').querySelectorAll('.gb').forEach(b=>b.addEventListener('click',()=>{
+    S.gs=+b.dataset.g;
+    $('ptbar').querySelectorAll('.gb').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+    reRenderPGrid();
+  }));
+  if(creator.svc==='leak'){
+    $('psort').addEventListener('change',reloadProfile);
+    $('ptype').addEventListener('change',reloadProfile);
+  }
+  $('plmore').addEventListener('click',fetchPPage);
+  await fetchPPage();
+}
+
+function reloadProfile(){
+  S.pMedias=[];S.pPage=1;S.pDone=false;
+  $('pgrid').innerHTML=skel(12);fetchPPage();
+}
+function reRenderPGrid(){
+  const pg=$('pgrid');if(!pg)return;
+  pg.innerHTML='';
+  const g=document.createElement('div');g.className=gcls();
+  S.pMedias.forEach((m,i)=>g.appendChild(buildPCard(m,i)));
+  pg.appendChild(g);
+}
+
+async function fetchPPage(){
+  if(S.pLoad||S.pDone)return;S.pLoad=true;
+  const c=S.profile;
+  const btn=$('plmore');if(btn){btn.disabled=true;btn.innerHTML='<span class="spin"></span>'}
+  try{
+    let items=[],done=false;
+    if(c.svc==='coomer'){
+      const raw=await cFetch(`/api/v1/${c.coomerSvc}/user/${c.id}/posts?o=${S.pMedias.length}`);
+      items=Array.isArray(raw)?raw:(raw?.posts||[]);done=items.length<50;
+    }else{
+      const sort=$('psort')?.value||'MostRecent';
+      const type=$('ptype')?.value||'All';
+      const raw=await lFetch(`/profile/${c.id}/${S.pPage}?type=${type}&sort=${sort}&fake=true`);
+      items=raw?.medias||[];done=items.length===0;S.pPage++;
+    }
+    const start=S.pMedias.length;S.pMedias.push(...items);S.pDone=done;
+    const t=$('ptitle');if(t)t.textContent=S.pMedias.length+(done?'':'+')+ ' posts';
+    const pp=$('ppc');if(pp)pp.innerHTML=`<strong>${S.pMedias.length}${done?'':'+'}</strong> posts`;
+    const pg=$('pgrid');
+    pg.querySelectorAll('.skel').forEach(s=>s.remove());
+    let g=pg.querySelector('.mgrid');
+    if(!g){g=document.createElement('div');g.className=gcls();pg.appendChild(g);}
+    
+    items.forEach((m,i)=>{
+       const card = buildPCard(m,start+i);
+       card.style.animationDelay = `${i * 0.03}s`;
+       g.appendChild(card);
+    });
+
+    if(btn){
+      if(done){btn.textContent=`All ${S.pMedias.length} loaded`;btn.disabled=true;}
+      else{btn.textContent=`Load more (${S.pMedias.length} loaded)`;btn.disabled=false;}
+    }
+  }catch(e){if(btn){btn.textContent='Retry';btn.disabled=false;}}
+  S.pLoad=false;
+}
+
+function buildPCard(item,idx){
+  const div=document.createElement('div');div.className='mcard';
+  const c=S.profile;
+  let thumb,vid;
+  if(c.svc==='coomer'){
+    const m=getCoomerMedia(item);const f=m[0];
+    thumb=f?cMediaUrl(f.path):'';vid=f?isVid(f.path):false;
+  }else{thumb=lUrl(item.thumbnail_path);vid=item.is_video;}
+  div.innerHTML=`<div class="mthumb">
+    ${thumb?(vid?`<video src="${esc(thumb)}" muted preload="metadata" style="pointer-events:none"></video>`:`<img src="${esc(thumb)}" loading="lazy" onerror="this.style.opacity='.12'">`):'<div style="height:100%;background:var(--bg5)"></div>'}
+    ${vid?'<div class="vbadge">▶</div>':''}
+  </div>`;
+  div.addEventListener('click',()=>{
+    if(c.svc==='leak')openLBLeak(S.pMedias,idx,c);
+    else openLBCoomer(S.pMedias,idx,c);
+  });
+  return div;
+}
+
+// ── LIGHTBOX ─────────────────────────────────────────────
+function setLBHead(creator,meta){
+  const av=creator?.avatar||(creator?.svc==='coomer'?cIcon(creator?.coomerSvc||'',creator?.id||''):'');
+  $('lbAv').src=av||'';
+  $('lbCn').textContent='@'+(creator?.name||'—');
+  $('lbMeta').textContent=meta||'';
+}
+function clearLBMedia(){
+  const m=$('lbMedia');
+  Array.from(m.children).forEach(c=>{if(c.tagName!=='BUTTON'&&!c.classList.contains('lb-reels')&&c.id!=='lbStats')c.remove();});
+  m.querySelectorAll('video,img,div.vcw').forEach(e=>e.remove());
+}
+function setLBLoad(){clearLBMedia();const s=document.createElement('span');s.className='spin';$('lbMedia').appendChild(s);}
+
+async function openLBLeak(items,idx,creator,skipUrl=false){
+  S.lb={open:true,items,idx,svc:'leak',creator,media:[],midx:0};
+  $('lb').classList.add('on');document.body.style.overflow='hidden';
+  const item=items[idx];
+  
+  if (!skipUrl && creator) {
+     updateURL('leak', creator.id, item.id);
+  }
+
+  const prof=creator||item.profile||{};
+  setLBHead({svc:'leak',name:prof.username||'',avatar:prof.profile_pic||''},item.added?new Date(item.added).toLocaleDateString():'');
+  $('lbUp').disabled=idx===0;$('lbDn').disabled=idx===items.length-1;
+  $('lbP').style.display='none';$('lbN').style.display='none';
+  setLBLoad();
+  try{
+    const d=await lFetch(`/media/${item.id}`);
+    renderLBLeakDetail(d,creator||{svc:'leak',name:d.profile?.username||'',avatar:d.profile?.profile_pic||''});
+  }catch(e){renderLBLeakBasic(item);}
+}
+
+function renderLBLeakDetail(d,creator){
+  if(!S.lb.open)return;
+  clearLBMedia();
+  const url=lUrl(d.file_path);const vid=d.is_video;
+  if(vid){
+    const w=buildVidWrap(url);$('lbMedia').appendChild(w);
+  }else{
+    const img=document.createElement('img');img.src=url;
+    img.style.cssText='max-width:100%;max-height:100%;object-fit:contain;';
+    $('lbMedia').appendChild(img);
+  }
+  $('lbDl').href=url;
+  $('lbStats').innerHTML=[
+    d.views_count?`<span class="lb-stat">👁 ${fmt(d.views_count)}</span>`:'',
+    d.likes_count?`<span class="lb-stat">♥ ${d.likes_count}</span>`:'',
+  ].join('');
+  $('lbPT').textContent='@'+(d.profile?.username||'—');
+  $('lbPD').textContent=d.added||'';
+  const sg=$('lbSug');sg.innerHTML='';
+  (d.suggested_media||[]).forEach(s=>{
+    const el=document.createElement('div');el.className='sug-item';
+    const tu=lUrl(s.thumbnail_path);
+    el.innerHTML=s.is_video?`<video src="${esc(tu)}" muted preload="metadata"></video>`:`<img src="${esc(tu)}" loading="lazy">`;
+    el.addEventListener('click',async()=>{setLBLoad();try{const nd=await lFetch(`/media/${s.id}`);renderLBLeakDetail(nd,creator);}catch(e){}});
+    sg.appendChild(el);
+  });
+}
+
+function renderLBLeakBasic(item){
+  clearLBMedia();
+  const url=lUrl(item.file_path||item.thumbnail_path);
+  const el=item.is_video?document.createElement('video'):document.createElement('img');
+  el.src=url;
+  if(item.is_video){el.autoplay=true;el.loop=true;el.style.cssText='max-width:100%;max-height:100%;';}
+  else el.style.cssText='max-width:100%;max-height:100%;object-fit:contain;';
+  $('lbMedia').appendChild(el);$('lbDl').href=url;
+}
+
+function openLBCoomer(items,idx,creator,skipUrl=false){
+  const item=items[idx];
+  const media=getCoomerMedia(item);
+  S.lb={open:true,items,idx,svc:'coomer',creator,media,midx:0};
+  $('lb').classList.add('on');document.body.style.overflow='hidden';
+  
+  const prof=creator||{svc:'coomer',coomerSvc:item.service||'',id:item.user||'',name:item.user||''};
+  
+  if (!skipUrl) {
+    updateURL(prof.coomerSvc, prof.id, item.id);
+  }
+
+  setLBHead({svc:'coomer',coomerSvc:item.service||prof.coomerSvc||'',id:item.user||prof.id||'',name:item.user||prof.name||'',avatar:cIcon(item.service||prof.coomerSvc||'',item.user||prof.id||'')},
+    item.published?new Date(item.published).toLocaleDateString():'');
+  $('lbUp').disabled=idx===0;$('lbDn').disabled=idx===items.length-1;
+  renderCMedia(media,0);
+}
+
+function renderCMedia(media,midx){
+  if(!S.lb.open)return;
+  S.lb.media=media;S.lb.midx=midx;
+  clearLBMedia();
+  $('lbP').style.display=media.length>1?'':'none';
+  $('lbN').style.display=media.length>1?'':'none';
+  $('lbP').disabled=midx===0;$('lbN').disabled=midx===media.length-1;
+  const it=media[midx];if(!it)return;
+  const url=cMediaUrl(it.path);const vid=isVid(it.path);
+  if(vid){$('lbMedia').appendChild(buildVidWrap(url));}
+  else{
+    const img=document.createElement('img');img.src=url;
+    img.style.cssText='max-width:100%;max-height:100%;object-fit:contain;';
+    $('lbMedia').appendChild(img);
+  }
+  $('lbDl').href=url;
+  $('lbStats').innerHTML=media.length>1?`<span class="lb-stat">${midx+1} / ${media.length}</span>`:'';
+  const post=S.lb.items[S.lb.idx];
+  $('lbPT').textContent=post.title||'Untitled';
+  $('lbPD').textContent=post.published?new Date(post.published).toLocaleDateString():'';
+  const sg=$('lbSug');sg.innerHTML='';
+  media.forEach((m,i)=>{
+    const el=document.createElement('div');el.className='sug-item'+(i===midx?' on':'');
+    if(i===midx)el.style.borderColor='var(--accent)';
+    const u2=cMediaUrl(m.path);
+    el.innerHTML=isVid(m.path)?`<video src="${esc(u2)}" muted preload="metadata"></video>`:`<img src="${esc(u2)}" loading="lazy">`;
+    el.addEventListener('click',()=>renderCMedia(media,i));
+    sg.appendChild(el);
+  });
+}
+
+// ── VIDEO PLAYER ─────────────────────────────────────────
+function buildVidWrap(url){
+  const w=document.createElement('div');w.className='vcw';
+  const v=document.createElement('video');
+  v.src=url;v.loop=true;v.preload='auto';v.id='lbVid';
+  const cc=document.createElement('div');cc.className='vcc';
+  cc.innerHTML=`<div class="vbar" id="vbar"><div class="vfill" id="vfill"></div><div class="vtmb" id="vtmb"></div></div>
+    <div class="vcr">
+      <button class="vb" id="vplay">⏸</button>
+      <span class="vt" id="vt">0:00 / 0:00</span>
+      <div style="flex:1"></div>
+      <button class="vb" id="vmute">🔊</button>
+      <input class="vvol" type="range" id="vvol" min="0" max="1" step="0.05" value="1">
+    </div>`;
+  w.appendChild(v);w.appendChild(cc);
+  setTimeout(()=>initVid(v),0);
+  v.play().catch(()=>{});
+  return w;
+}
+function initVid(v){
+  const play=$('vplay'),fill=$('vfill'),tmb=$('vtmb'),bar=$('vbar'),t=$('vt'),mute=$('vmute'),vol=$('vvol');
+  if(!play)return;
+  v.addEventListener('timeupdate',()=>{
+    if(!v.duration)return;
+    const p=(v.currentTime/v.duration*100).toFixed(2);
+    fill.style.width=p+'%';tmb.style.left=p+'%';
+    t.textContent=`${fmtT(v.currentTime)} / ${fmtT(v.duration)}`;
+  });
+  v.addEventListener('play',()=>play.textContent='⏸');
+  v.addEventListener('pause',()=>play.textContent='▶');
+  play.addEventListener('click',()=>v.paused?v.play():v.pause());
+  bar.addEventListener('click',e=>{const r=bar.getBoundingClientRect();v.currentTime=((e.clientX-r.left)/r.width)*v.duration;});
+  mute.addEventListener('click',()=>{v.muted=!v.muted;mute.textContent=v.muted?'🔇':'🔊';});
+  vol.addEventListener('input',()=>{v.volume=vol.value;});
+}
+
+// ── LB NAV ───────────────────────────────────────────────
+function closeLB(skipUrl=false){
+  $('lb').classList.remove('on');
+  if(!skipUrl) document.body.style.overflow='';
+  const v=$('lbVid');if(v)v.pause();
+  S.lb.open=false;
+
+  if (!skipUrl) {
+    if (S.view === 'profile' && S.profile) {
+      updateURL(S.profile.svc === 'leak' ? 'leak' : S.profile.coomerSvc, S.profile.id);
+    } else if (S.view === 'home') {
+      updateURL(null, null);
     }
   }
 }
 
-let uploadedCreatorsFileName = '';
+function lbNav(dir){
+  if(dir==='mp'||dir==='mn'){
+    const ni=S.lb.midx+(dir==='mn'?1:-1);
+    if(ni>=0&&ni<S.lb.media.length)renderCMedia(S.lb.media,ni);
+    return;
+  }
+  const ni=S.lb.idx+(dir==='n'?1:-1);
+  if(ni<0||ni>=S.lb.items.length)return;
+  if(S.lb.svc==='leak')openLBLeak(S.lb.items,ni,S.lb.creator);
+  else openLBCoomer(S.lb.items,ni,S.lb.creator);
+}
 
-function bindServerModal() {
-  document.getElementById('serverBtn').addEventListener('click', openServerModal);
-  document.getElementById('serverModalClose').addEventListener('click', closeServerModal);
-  document.getElementById('serverModalCancel').addEventListener('click', closeServerModal);
-  document.getElementById('serverModal').addEventListener('click', e => {
-    if (e.target === document.getElementById('serverModal')) closeServerModal();
+// ── SIDEBAR TOGGLE ───────────────────────────────────────
+function openSidebar(){$('sidebar').classList.add('on');$('overlay').classList.add('on');}
+function closeSidebar(){$('sidebar').classList.remove('on');$('overlay').classList.remove('on');}
+
+// ── INFINITE SCROLL ──────────────────────────────────────
+$('cscroll').addEventListener('scroll',()=>{
+  const el=$('cscroll');
+  if(el.scrollTop+el.clientHeight<el.scrollHeight-500)return;
+  if(S.view==='home'){const f=S.htabs[S.activeTab];if(f&&!f.load&&!f.done)loadTab(S.activeTab);}
+  if(S.view==='profile'&&!S.pLoad&&!S.pDone)fetchPPage();
+});
+
+// ── EVENTS ───────────────────────────────────────────────
+$('hamBtn').addEventListener('click',()=>$('sidebar').classList.contains('on')?closeSidebar():openSidebar());
+$('overlay').addEventListener('click',closeSidebar);
+
+// Mobile search toggle
+if(window.innerWidth <= 600) {
+  $('mobileSearchBtn').style.display = 'flex';
+  $('mobileSearchBtn').addEventListener('click', () => {
+    $('searchWrap').classList.toggle('mobile-open');
+    if($('searchWrap').classList.contains('mobile-open')) $('searchInput').focus();
   });
+}
 
-  // Add custom server
-  document.getElementById('addServerBtn').addEventListener('click', () => {
-    let url = document.getElementById('customServerInput').value.trim();
-    if (!url) return;
-    if (!url.startsWith('http')) url = 'https://' + url;
-    url = url.replace(/\/$/, '');
-    if (!serverCfg.custom.includes(url) && !BUILTIN_SERVERS.includes(url)) {
-      serverCfg.custom.push(url);
-      saveServerConfig();
+$('homeBtn').addEventListener('click',()=>{
+  if(S.view!=='home'){
+    S.htabs={cp:{posts:[],off:0,load:false,done:false},cl:{posts:[],off:0,load:false,done:false},ld:{items:[],page:1,load:false,done:false}};
+    showHome();
+  }
+});
+
+$('gridBtn').addEventListener('click',()=>{
+  S.gs=S.gs>=5?2:S.gs+1;
+  document.querySelectorAll('.mgrid').forEach(g=>g.className='mgrid g'+S.gs);
+});
+
+document.querySelectorAll('.spill').forEach(p=>p.addEventListener('click',()=>{
+  document.querySelectorAll('.spill').forEach(x=>x.classList.remove('on'));
+  p.classList.add('on');S.svc=p.dataset.s;
+  const isL=S.svc==='leak';
+  document.documentElement.style.setProperty('--accent',isL?'var(--l)':'var(--c)');
+  document.documentElement.style.setProperty('--accentg',isL?'var(--lg)':'var(--cg)');
+  
+  renderSidebar();
+  
+  if(S.view==='home'){
+    S.htabs={cp:{posts:[],off:0,load:false,done:false},cl:{posts:[],off:0,load:false,done:false},ld:{items:[],page:1,load:false,done:false}};
+    showHome();
+  }
+}));
+
+$('searchInput').addEventListener('input',e=>{
+  clearTimeout(searchTimer);const q=e.target.value.trim();
+  S.query=q;
+  if(!q) { renderSidebar(); return; } 
+  
+  if(window.innerWidth<=900)openSidebar();
+  searchTimer=setTimeout(()=>doSearch(q),380);
+});
+$('searchInput').addEventListener('keydown',e=>{if(e.key==='Enter'){clearTimeout(searchTimer);doSearch(S.query);}});
+
+$('lbClose').addEventListener('click',()=>closeLB());
+$('lbP').addEventListener('click',()=>lbNav(S.lb.svc==='coomer'?'mp':'p'));
+$('lbN').addEventListener('click',()=>lbNav(S.lb.svc==='coomer'?'mn':'n'));
+$('lbUp').addEventListener('click',()=>lbNav('p'));
+$('lbDn').addEventListener('click',()=>lbNav('n'));
+
+let tx=0,ty=0;
+$('lb').addEventListener('touchstart',e=>{tx=e.changedTouches[0].clientX;ty=e.changedTouches[0].clientY;},{passive:true});
+$('lb').addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;
+  if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>45){
+    lbNav(S.lb.svc==='coomer'?(dx<0?'mn':'mp'):(dx<0?'n':'p'));
+  }else if(Math.abs(dy)>Math.abs(dx)&&Math.abs(dy)>55){
+    lbNav(dy<0?'n':'p');
+  }
+},{passive:true});
+
+let wt;
+$('lb').addEventListener('wheel',e=>{
+  if(!S.lb.open||e.target.closest('#lbPanel'))return;
+  if(Math.abs(e.deltaY)<15||wt)return;
+  wt=setTimeout(()=>wt=null,520);
+  lbNav(e.deltaY>0?'n':'p');
+},{passive:true});
+
+document.addEventListener('keydown',e=>{
+  if(!S.lb.open)return;
+  if(e.key==='Escape')closeLB();
+  if(e.key==='ArrowLeft')lbNav(S.lb.svc==='coomer'?'mp':'p');
+  if(e.key==='ArrowRight')lbNav(S.lb.svc==='coomer'?'mn':'n');
+  if(e.key==='ArrowUp'||e.key==='w')lbNav('p');
+  if(e.key==='ArrowDown'||e.key==='s')lbNav('n');
+});
+
+// ── BOOTSTRAP ────────────────────────────────────────────
+async function boot() {
+  bindServerModal();
+  await loadCreators();
+
+  const params = new URLSearchParams(window.location.search);
+  const svc = params.get('service');
+  const creatorId = params.get('creator');
+  const postId = params.get('post');
+
+  if (svc && creatorId) {
+    let cObj = S.allCreators.find(c => c.id === creatorId && (svc === 'leak' ? c.svc === 'leak' : c.coomerSvc === svc));
+    if (!cObj) cObj = { id: creatorId, name: creatorId, svc: svc === 'leak' ? 'leak' : 'coomer', coomerSvc: svc };
+    
+    await loadProfile(cObj, true);
+
+    if (postId) {
+       const idx = S.pMedias.findIndex(m => m.id === postId || m.file_path?.includes(postId));
+       if (idx >= 0) {
+         if (cObj.svc === 'leak') openLBLeak(S.pMedias, idx, cObj, true);
+         else openLBCoomer(S.pMedias, idx, cObj, true);
+       }
     }
-    document.getElementById('customServerInput').value = '';
-    renderServerModal();
-  });
-  document.getElementById('customServerInput').addEventListener('keydown', e => {
-    if (e.key === 'Enter') document.getElementById('addServerBtn').click();
-  });
-
-  // Proxy toggle
-  document.getElementById('useProxyToggle').addEventListener('change', e => {
-    serverCfg.useProxy = e.target.checked;
-  });
-
-  // File upload (modal)
-  document.getElementById('modalCreatorsFile').addEventListener('change', e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    handleCreatorsFile(file);
-    document.getElementById('uploadedFileName').textContent = '✓ ' + file.name;
-    uploadedCreatorsFileName = file.name;
-  });
-
-  // File upload (sidebar quick-upload)
-  document.getElementById('creatorsFileInput').addEventListener('change', e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    handleCreatorsFile(file);
-    updateSidebarStatus('Loading from file…');
-  });
-
-  // Clear uploaded file
-  document.getElementById('clearCreatorsBtn').addEventListener('click', () => {
-    uploadedCreatorsData = null;
-    uploadedCreatorsFileName = '';
-    document.getElementById('uploadedFileName').textContent = 'No file selected';
-    document.getElementById('modalCreatorsFile').value = '';
-    document.getElementById('creatorsFileInput').value = '';
-  });
-
-  // Save button
-  document.getElementById('serverModalSave').addEventListener('click', () => {
-    serverCfg.useProxy = document.getElementById('useProxyToggle').checked;
-    ACTIVE_SERVER = serverCfg.active;
-    saveServerConfig();
-    updateServerBtn();
-    closeServerModal();
-    loadCreators(true);
-  });
+  } else {
+    showHome(true);
+  }
 }
 
-function handleCreatorsFile(file) {
-  const reader = new FileReader();
-  reader.onload = e => {
-    try {
-      const raw = JSON.parse(e.target.result);
-      const parsed = parseCreatorsData(raw);
-      if (parsed && parsed.length) {
-        uploadedCreatorsData = parsed;
-        uploadedCreatorsFileName = file.name;
-        state.allCreators = parsed;
-        renderCreatorList(false);
-        updateSidebarStatus(parsed.length + ' creators (from file)');
-      } else {
-        alert('Could not parse creators from this file. Expected a JSON array or {creators:[...]} object.');
-      }
-    } catch(err) {
-      alert('Invalid JSON in file: ' + err.message);
-    }
-  };
-  reader.readAsText(file);
-}
-
-function updateServerBtn() {
-  const btn = document.getElementById('serverBtn');
-  const isCustom = !BUILTIN_SERVERS.includes(serverCfg.active) || serverCfg.custom.length > 0;
-  btn.classList.toggle('configured', isCustom);
-  btn.title = 'Active: ' + serverCfg.active;
-}
-
-bindServerModal();
-updateServerBtn();
-init();
+boot();
 </script>
 </body>
 </html>
