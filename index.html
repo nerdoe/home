@@ -40,9 +40,10 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .logo-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;transition:background 0.3s;}
 .ham{display:none;width:38px;height:38px;align-items:center;justify-content:center;border-radius:7px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);cursor:pointer;font-size:18px;flex-shrink:0;transition:all .15s}
 .ham:hover{color:var(--text);background:var(--bg4)}
-.svc-pills{display:flex;gap:3px;flex-shrink:0}
+
+.svc-pills{display:flex;gap:4px;flex-shrink:0}
 .spill{
-  display:flex;align-items:center;gap:5px;padding:5px 11px;border-radius:20px;
+  display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:20px;
   font-size:11px;font-weight:700;cursor:pointer;border:1px solid var(--border2);
   background:var(--bg3);color:var(--text2);transition:all .15s;white-space:nowrap
 }
@@ -54,6 +55,10 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .spill.on[data-s="coomer"]{background:var(--cg);border-color:var(--c);color:var(--c)}
 .spill.on[data-s="leak"]  {background:var(--lg);border-color:var(--l);color:var(--l)}
 .spill.on[data-s="both"]  {background:var(--cg);border-color:var(--accent);color:var(--accent)}
+
+.desktop-only { display: flex; }
+.mob-only { display: none; }
+
 .search-w{flex:1;max-width:360px;position:relative}
 .search-w input{
   width:100%;padding:8px 12px 8px 32px;background:var(--bg3);border:1px solid var(--border);
@@ -214,12 +219,12 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .lb-nav.p{left:16px}
 .lb-nav.n{right:16px}
 
-.lb-reels{position:absolute;right:16px;bottom:75px;display:flex;flex-direction:column;gap:10px;z-index:5}
+.lb-reels{position:absolute;right:16px;bottom:85px;display:flex;flex-direction:column;gap:10px;z-index:5}
 .lb-rb{width:44px;height:44px;border-radius:50%;background:rgba(0,0,0,.65);border:1px solid rgba(255,255,255,.15);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;backdrop-filter:blur(10px);transition:all .2s}
 .lb-rb:hover{background:rgba(255,255,255,.25);transform:scale(1.1);}
 .lb-rb:disabled{opacity:.25;pointer-events:none}
 
-.lb-stats{position:absolute;bottom:0;left:0;right:0;padding:32px 16px 14px;background:linear-gradient(to top,rgba(0,0,0,.9),transparent);display:flex;align-items:center;gap:12px;pointer-events:none}
+.lb-stats{position:absolute;bottom:0;left:0;right:0;padding:40px 16px 14px;background:linear-gradient(to top,rgba(0,0,0,.9),transparent);display:flex;align-items:center;gap:12px;pointer-events:none}
 .lb-stat{font-size:12px;font-weight:600;color:rgba(255,255,255,.8);font-family:var(--mono);display:flex;align-items:center;gap:5px;background:rgba(0,0,0,0.5);padding:4px 8px;border-radius:6px;backdrop-filter:blur(4px);}
 
 .lb-panel{width:300px;flex-shrink:0;background:var(--bg2);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
@@ -233,14 +238,29 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .sug-item:hover,.sug-item.on{border-color:var(--accent);transform:scale(1.05);}
 .sug-item img,.sug-item video{width:100%;height:100%;object-fit:cover}
 
-/* VIDEO CONTROLS */
+/* NATIVE VIDEO SLIDER CONTROLS */
 .vcw{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center}
 .vcw video{max-width:100%;max-height:100%;object-fit:contain}
 .vcc{position:absolute;bottom:0;left:0;right:0;padding:30px 16px 14px;background:linear-gradient(transparent,rgba(0,0,0,.95))}
-.vbar{height:5px;border-radius:3px;background:rgba(255,255,255,.2);cursor:pointer;margin-bottom:12px;position:relative;transition:height 0.15s;}
-.vbar:hover{height:7px;}
-.vfill{height:100%;border-radius:3px;background:var(--accent);width:0%;transition:width .1s linear}
-.vtmb{position:absolute;top:50%;transform:translate(-50%,-50%);width:13px;height:13px;border-radius:50%;background:#fff;box-shadow:0 0 0 2px var(--accent);pointer-events:none}
+
+input[type=range].vbar {
+  -webkit-appearance: none; appearance: none;
+  width: 100%; height: 5px; border-radius: 3px; 
+  background: rgba(255,255,255,0.2); margin-bottom: 14px; 
+  cursor: pointer; outline: none; padding: 0;
+  transition: height 0.15s;
+}
+input[type=range].vbar:hover { height: 7px; }
+input[type=range].vbar::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; 
+  width: 16px; height: 16px; border-radius: 50%;
+  background: #fff; box-shadow: 0 0 0 2px var(--accent);
+}
+input[type=range].vbar::-moz-range-thumb {
+  width: 16px; height: 16px; border-radius: 50%; border: none;
+  background: #fff; box-shadow: 0 0 0 2px var(--accent);
+}
+
 .vcr{display:flex;align-items:center;gap:12px}
 .vb{width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,.1);border:none;color:#fff;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:background .15s;backdrop-filter:blur(4px);}
 .vb:hover{background:rgba(255,255,255,.25)}
@@ -316,7 +336,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
   .sidebar{position:fixed;top:var(--topbar);left:0;bottom:0;z-index:160;width:var(--sidebar);transform:translateX(-100%)}
   .sidebar.on{transform:translateX(0);box-shadow:6px 0 40px rgba(0,0,0,.7)}
   .ham{display:flex}
-  .svc-pills{display:none}
+  .desktop-only{display:none !important;}
+  .mob-only{display:flex !important;}
   .mgrid.g4{grid-template-columns:repeat(3,1fr)}
   .mgrid.g5{grid-template-columns:repeat(3,1fr)}
   .lb-panel{display:none}
@@ -328,7 +349,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
   .p-hero{padding:0 14px 16px;gap:12px}
   .tbar{padding:8px 12px}
   .hsec{padding:10px}
-  .lb-reels{right:8px;bottom:65px}
+  .lb-reels{right:8px;bottom:75px}
   .lb-nav.n{right:55px}
   .lb-nav.p{left:8px}
   .search-w{position:absolute;top:var(--topbar);left:0;right:0;max-width:100%;z-index:200;background:var(--bg2);padding:10px;display:none;border-bottom:1px solid var(--border);}
@@ -347,11 +368,13 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 <div class="topbar">
   <button class="ham" id="hamBtn">☰</button>
   <div class="logo"><div class="logo-dot"></div>vault</div>
-  <div class="svc-pills" id="svcPills">
+  
+  <div class="svc-pills desktop-only" id="svcPills">
     <div class="spill on" data-s="coomer"><span class="sdot"></span>Coomer</div>
     <div class="spill" data-s="leak"><span class="sdot"></span>LeakGallery</div>
     <div class="spill" data-s="both"><span class="sdot"></span>Both</div>
   </div>
+
   <div class="search-w" id="searchWrap">
     <span class="search-ico">⌕</span>
     <input type="text" id="searchInput" placeholder="Search creators…" autocomplete="off">
@@ -367,6 +390,13 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 <div class="body">
   <div class="overlay" id="overlay"></div>
   <div class="sidebar" id="sidebar">
+    
+    <div class="svc-pills mob-only" style="padding: 14px; border-bottom: 1px solid var(--border); overflow-x: auto;">
+      <div class="spill on" data-s="coomer"><span class="sdot"></span>Coomer</div>
+      <div class="spill" data-s="leak"><span class="sdot"></span>LeakGallery</div>
+      <div class="spill" data-s="both"><span class="sdot"></span>Both</div>
+    </div>
+
     <div class="sb-head">
       <div>
         <span class="sb-lbl">Creators</span>
@@ -897,8 +927,9 @@ function buildCard(item,tabKey,idx){
     thumb=first?cMediaUrl(first.path):'';vid=first?isVid(first.path):false;
     cname=item.user||'';cav=cIcon(item.service||'',item.user||'');
   }
+  const thumbIsVid = isVid(thumb);
   div.innerHTML=`<div class="mthumb">
-    ${thumb?(vid?`<video src="${esc(thumb)}" muted preload="metadata" style="pointer-events:none"></video>`:`<img src="${esc(thumb)}" loading="lazy" onerror="this.style.opacity='.12'">`):'<div style="height:100%;background:var(--bg5)"></div>'}
+    ${thumb?(thumbIsVid?`<video src="${esc(thumb)}" muted preload="metadata" style="pointer-events:none"></video>`:`<img src="${esc(thumb)}" loading="lazy" onerror="this.style.opacity='.12'">`):'<div style="height:100%;background:var(--bg5)"></div>'}
     ${vid?'<div class="vbadge">▶ VIDEO</div>':''}
     <div class="movlay"><div class="movlay-c">
       ${cav?`<img src="${esc(cav)}" onerror="this.style.display='none'" loading="lazy">`:''}
@@ -937,7 +968,6 @@ async function doSearch(q){
 
   try{
     if(svc==='leak'||svc==='both'){
-      // USE POST REQUEST FOR LEAKGALLERY SEARCH
       const raw=await lFetch(`/search`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1085,8 +1115,10 @@ function buildPCard(item,idx){
     const m=getCoomerMedia(item);const f=m[0];
     thumb=f?cMediaUrl(f.path):'';vid=f?isVid(f.path):false;
   }else{thumb=lUrl(item.thumbnail_path);vid=item.is_video;}
+  
+  const thumbIsVid = isVid(thumb);
   div.innerHTML=`<div class="mthumb">
-    ${thumb?(vid?`<video src="${esc(thumb)}" muted preload="metadata" style="pointer-events:none"></video>`:`<img src="${esc(thumb)}" loading="lazy" onerror="this.style.opacity='.12'">`):'<div style="height:100%;background:var(--bg5)"></div>'}
+    ${thumb?(thumbIsVid?`<video src="${esc(thumb)}" muted preload="metadata" style="pointer-events:none"></video>`:`<img src="${esc(thumb)}" loading="lazy" onerror="this.style.opacity='.12'">`):'<div style="height:100%;background:var(--bg5)"></div>'}
     ${vid?'<div class="vbadge">▶</div>':''}
   </div>`;
   div.addEventListener('click',()=>{
@@ -1152,7 +1184,8 @@ function renderLBLeakDetail(d,creator){
   (d.suggested_media||[]).forEach(s=>{
     const el=document.createElement('div');el.className='sug-item';
     const tu=lUrl(s.thumbnail_path);
-    el.innerHTML=s.is_video?`<video src="${esc(tu)}" muted preload="metadata"></video>`:`<img src="${esc(tu)}" loading="lazy">`;
+    const thumbIsVid = isVid(tu);
+    el.innerHTML=thumbIsVid?`<video src="${esc(tu)}" muted preload="metadata"></video>`:`<img src="${esc(tu)}" loading="lazy">`;
     el.addEventListener('click',async()=>{setLBLoad();try{const nd=await lFetch(`/media/${s.id}`);renderLBLeakDetail(nd,creator);}catch(e){}});
     sg.appendChild(el);
   });
@@ -1211,19 +1244,21 @@ function renderCMedia(media,midx){
     const el=document.createElement('div');el.className='sug-item'+(i===midx?' on':'');
     if(i===midx)el.style.borderColor='var(--accent)';
     const u2=cMediaUrl(m.path);
-    el.innerHTML=isVid(m.path)?`<video src="${esc(u2)}" muted preload="metadata"></video>`:`<img src="${esc(u2)}" loading="lazy">`;
+    const thumbIsVid = isVid(m.path);
+    el.innerHTML=thumbIsVid?`<video src="${esc(u2)}" muted preload="metadata"></video>`:`<img src="${esc(u2)}" loading="lazy">`;
     el.addEventListener('click',()=>renderCMedia(media,i));
     sg.appendChild(el);
   });
 }
 
-// ── VIDEO PLAYER ─────────────────────────────────────────
+// ── NATIVE VIDEO PLAYER CONTROLS ──────────────────────────
 function buildVidWrap(url){
   const w=document.createElement('div');w.className='vcw';
   const v=document.createElement('video');
   v.src=url;v.loop=true;v.preload='auto';v.id='lbVid';
   const cc=document.createElement('div');cc.className='vcc';
-  cc.innerHTML=`<div class="vbar" id="vbar"><div class="vfill" id="vfill"></div><div class="vtmb" id="vtmb"></div></div>
+  cc.innerHTML=`
+    <input type="range" class="vbar" id="vprogress" min="0" max="100" value="0" step="0.1">
     <div class="vcr">
       <button class="vb" id="vplay">⏸</button>
       <span class="vt" id="vt">0:00 / 0:00</span>
@@ -1236,19 +1271,41 @@ function buildVidWrap(url){
   v.play().catch(()=>{});
   return w;
 }
+
 function initVid(v){
-  const play=$('vplay'),fill=$('vfill'),tmb=$('vtmb'),bar=$('vbar'),t=$('vt'),mute=$('vmute'),vol=$('vvol');
+  const play=$('vplay'), prog=$('vprogress'), t=$('vt'), mute=$('vmute'), vol=$('vvol');
   if(!play)return;
+  
+  let isScrub = false;
+
+  const updateProgVisual = (val) => {
+    prog.style.background = `linear-gradient(to right, var(--accent) ${val}%, rgba(255,255,255,0.2) ${val}%)`;
+  };
+
+  prog.addEventListener('input', () => {
+     isScrub = true;
+     const val = prog.value;
+     updateProgVisual(val);
+     if (v.duration) v.currentTime = (val / 100) * v.duration;
+  });
+  
+  prog.addEventListener('change', () => { 
+     isScrub = false; 
+  });
+
   v.addEventListener('timeupdate',()=>{
     if(!v.duration)return;
-    const p=(v.currentTime/v.duration*100).toFixed(2);
-    fill.style.width=p+'%';tmb.style.left=p+'%';
+    const p=(v.currentTime/v.duration*100);
+    if(!isScrub) {
+      prog.value = p;
+      updateProgVisual(p);
+    }
     t.textContent=`${fmtT(v.currentTime)} / ${fmtT(v.duration)}`;
   });
+  
   v.addEventListener('play',()=>play.textContent='⏸');
   v.addEventListener('pause',()=>play.textContent='▶');
   play.addEventListener('click',()=>v.paused?v.play():v.pause());
-  bar.addEventListener('click',e=>{const r=bar.getBoundingClientRect();v.currentTime=((e.clientX-r.left)/r.width)*v.duration;});
   mute.addEventListener('click',()=>{v.muted=!v.muted;mute.textContent=v.muted?'🔇':'🔊';});
   vol.addEventListener('input',()=>{v.volume=vol.value;});
 }
@@ -1318,9 +1375,13 @@ $('gridBtn').addEventListener('click',()=>{
   document.querySelectorAll('.mgrid').forEach(g=>g.className='mgrid g'+S.gs);
 });
 
+// Synchronize all platform pills (desktop and mobile versions)
 document.querySelectorAll('.spill').forEach(p=>p.addEventListener('click',()=>{
+  const s = p.dataset.s;
   document.querySelectorAll('.spill').forEach(x=>x.classList.remove('on'));
-  p.classList.add('on');S.svc=p.dataset.s;
+  document.querySelectorAll(`.spill[data-s="${s}"]`).forEach(x=>x.classList.add('on'));
+  
+  S.svc = s;
   const isL=S.svc==='leak';
   document.documentElement.style.setProperty('--accent',isL?'var(--l)':'var(--c)');
   document.documentElement.style.setProperty('--accentg',isL?'var(--lg)':'var(--cg)');
@@ -1349,24 +1410,7 @@ $('lbN').addEventListener('click',()=>lbNav(S.lb.svc==='coomer'?'mn':'n'));
 $('lbUp').addEventListener('click',()=>lbNav('p'));
 $('lbDn').addEventListener('click',()=>lbNav('n'));
 
-let tx=0,ty=0;
-$('lb').addEventListener('touchstart',e=>{tx=e.changedTouches[0].clientX;ty=e.changedTouches[0].clientY;},{passive:true});
-$('lb').addEventListener('touchend',e=>{
-  const dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;
-  if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>45){
-    lbNav(S.lb.svc==='coomer'?(dx<0?'mn':'mp'):(dx<0?'n':'p'));
-  }else if(Math.abs(dy)>Math.abs(dx)&&Math.abs(dy)>55){
-    lbNav(dy<0?'n':'p');
-  }
-},{passive:true});
-
-let wt;
-$('lb').addEventListener('wheel',e=>{
-  if(!S.lb.open||e.target.closest('#lbPanel'))return;
-  if(Math.abs(e.deltaY)<15||wt)return;
-  wt=setTimeout(()=>wt=null,520);
-  lbNav(e.deltaY>0?'n':'p');
-},{passive:true});
+/* Swipe navigation completely removed from lightbox as requested */
 
 document.addEventListener('keydown',e=>{
   if(!S.lb.open)return;
